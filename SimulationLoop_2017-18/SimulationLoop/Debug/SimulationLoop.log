@@ -1,0 +1,5 @@
+﻿  Game.cpp
+c:\users\cosmi\desktop\simulationloop_2018-19\simulationloop_2017-18\simulationloop\game.cpp(13): warning C4244: 'argument': conversion from 'size_t' to 'float', possible loss of data
+c:\users\cosmi\desktop\simulationloop_2018-19\simulationloop_2017-18\simulationloop\game.cpp(87): warning C4018: '<=': signed/unsigned mismatch
+c:\users\cosmi\desktop\simulationloop_2018-19\simulationloop_2017-18\simulationloop\game.cpp(89): warning C4018: '<': signed/unsigned mismatch
+  SimulationLoop.vcxproj -> C:\Users\cosmi\Desktop\SimulationLoop_2018-19\SimulationLoop_2017-18\Debug\SimulationLoop.exe

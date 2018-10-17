@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<ArrayOfArrayOfArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ArrayOfArrayOfString>
+    <ArrayOfString>
+      <string>C:\Users\cosmi\Desktop\SimulationLoop_2018-19\SimulationLoop_2017-18\SimulationLoop\Sphere.cpp</string>
+      <string>C:\Users\cosmi\Desktop\SimulationLoop_2018-19\SimulationLoop_2017-18\SimulationLoop\Sphere.h</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>C:\Users\cosmi\Desktop\SimulationLoop_2018-19\SimulationLoop_2017-18\SimulationLoop\ContactManifold.cpp</string>
+      <string>C:\Users\cosmi\Desktop\SimulationLoop_2018-19\SimulationLoop_2017-18\SimulationLoop\ContactManifold.h</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>C:\Users\cosmi\Desktop\SimulationLoop_2018-19\SimulationLoop_2017-18\SimulationLoop\Game.cpp</string>
+      <string>C:\Users\cosmi\Desktop\SimulationLoop_2018-19\SimulationLoop_2017-18\SimulationLoop\Game.h</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>C:\Users\cosmi\Desktop\SimulationLoop_2018-19\SimulationLoop_2017-18\SimulationLoop\main.cpp</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.15.26726\include\list</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>C:\Users\cosmi\Desktop\SimulationLoop_2018-19\SimulationLoop_2017-18\SimulationLoop\Vector2f.cpp</string>
+      <string>C:\Users\cosmi\Desktop\SimulationLoop_2018-19\SimulationLoop_2017-18\SimulationLoop\Vector2f.h</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>C:\Users\cosmi\Desktop\SimulationLoop_2018-19\SimulationLoop_2017-18\SimulationLoop\Vector3f.cpp</string>
+      <string>C:\Users\cosmi\Desktop\SimulationLoop_2018-19\SimulationLoop_2017-18\SimulationLoop\Vector3f.h</string>
+    </ArrayOfString>
+  </ArrayOfArrayOfString>
+</ArrayOfArrayOfArrayOfString>
