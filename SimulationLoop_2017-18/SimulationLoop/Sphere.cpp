@@ -6,40 +6,40 @@
 #include <cmath>
 #include "TextureLoader.h"
 
-int Sphere::countID = 0;
+//int Sphere::countID = 0;
 
-Sphere::Sphere(void) : m_mass(1), m_radius(5)
+Sphere::Sphere(void) : Shape(), m_mass(1), m_radius(5)
 {
-	m_objectID = countID;
-	++countID;
-	m_texture = TextureLoader::LoadBMP("checker.bmp");
+	//m_objectID = countID;
+	//++countID;
+	//m_texture = TextureLoader::LoadBMP("checker.bmp");
 }
 
 Sphere::~Sphere(void)
 {
 }
 
-void Sphere::SetName(std::string name)
-{
-	m_name = name;
-}
+//void Sphere::SetName(std::string name)
+//{
+//	m_name = name;
+//}
 
-void Sphere::SetPos(float x, float y)
-{
-	m_pos.Set(x, y);
-}
+//void Sphere::SetPos(float x, float y, float z)
+//{
+//	m_pos.Set(x, y, z);
+//}
 
-void Sphere::SetNewPos(Vector2f pos)
+void Sphere::SetNewPos(Vector3f pos)
 {
 	m_newPos = pos;
 }
 
-void Sphere::SetVel(float x, float y)
+void Sphere::SetVel(float x, float y, float z)
 {
-	m_velocity.Set(x, y);
+	m_velocity.Set(x, y, z);
 }
 
-void Sphere::SetNewVel(Vector2f vel)
+void Sphere::SetNewVel(Vector3f vel)
 {
 	m_newVelocity = vel;
 }
@@ -52,16 +52,16 @@ void Sphere::SetMass(float mass)
 void Sphere::CalculatePhysics(float dt)
 {
 	// Calcuate total force for this sphere, e.g. F = F1+F2+F3+...
-	Vector2f force(0.0f, -9.81f * m_mass);
+	Vector3f force(0.0f, -9.81f * m_mass, 0.0f);
 
 	// Calculate acceleration
-	Vector2f accel = force / m_mass;
+	Vector3f accel = force / m_mass;
 
 	// Integrate accel to get the new velocity (using Euler)
 	m_newVelocity = m_velocity + (accel * dt);
 
 	// Integrate old velocity to get the new position (using Euler)
-	m_newPos = m_pos + (m_velocity * dt);
+	m_newPos = GetPos() + (m_velocity * dt);
 
 	// ****************************************************************
 	// ******** This implementation is very basic and does not ********
@@ -71,8 +71,8 @@ void Sphere::CalculatePhysics(float dt)
 	// ****************************************************************
 	if(m_newPos.GetY() < -20.0f+m_radius)
 	{
-		m_newPos.Set(m_newPos.GetX(), -20.0f + m_radius);
-		m_newVelocity.Set(m_newVelocity.GetX(), 0.0f);
+		m_newPos.Set(m_newPos.GetX(), -20.0f + m_radius, m_newPos.GetZ());
+		m_newVelocity.Set(m_newVelocity.GetX(), 0.0f, 0.0f);
 	}
 }
 
@@ -84,8 +84,8 @@ void Sphere::CollisionWithSphere(Sphere* sphere2, ContactManifold *contactManifo
 	// ****************************************************************
 	// ******** Replace with better collision detection code ********
 	// ****************************************************************
-	Vector2f pos1 = this->GetNewPos();
-	Vector2f pos2 = sphere2->GetNewPos();
+	Vector3f pos1 = this->GetNewPos();
+	Vector3f pos2 = sphere2->GetNewPos();
 	float dist = pos1.distance(pos2) - (this->GetRadius() + sphere2->GetRadius());
 	if (dist < 0.0f)
 	{
@@ -99,13 +99,13 @@ void Sphere::CollisionWithSphere(Sphere* sphere2, ContactManifold *contactManifo
 
 void Sphere::ResetPos()
 {
-	m_newPos = m_pos;
+	m_newPos = GetPos();
 }
 
 void Sphere::Update()
 {
 	m_velocity = m_newVelocity;
-	m_pos = m_newPos;
+	SetPos(m_newPos.GetX(), m_newPos.GetY(), m_newPos.GetZ());
 }
 
 void Sphere::CollisionResponseWithSphere(ManifoldPoint &point)
@@ -117,7 +117,7 @@ void Sphere::CollisionResponseWithSphere(ManifoldPoint &point)
 	// ******** Replace with better response code for Spheres  ********
 	// ****************************************************************
 
-	Vector2f colNormal = point.contactNormal;
+	Vector3f colNormal = point.contactNormal;
 
 	point.contactID1->ResetPos();
 	point.contactID1->SetNewVel(-1.0f*colNormal*colNormal.dot(point.contactID1->GetVel()));
@@ -126,32 +126,32 @@ void Sphere::CollisionResponseWithSphere(ManifoldPoint &point)
 	point.contactID2->SetNewVel(-1.0f*colNormal*colNormal.dot(point.contactID2->GetVel()));
 }
 
-std::string Sphere::GetName()const
-{
-	return m_name;
-}
+//std::string Sphere::GetName()const
+//{
+//	return m_name;
+//}
 
 float Sphere::GetMass() const
 {
 	return m_mass;
 }
 
-Vector2f Sphere::GetPos() const
-{
-	return m_pos;
-}
+//Vector3f Sphere::GetPos() const
+//{
+//	return m_pos;
+//}
 
-Vector2f Sphere::GetNewPos() const
+Vector3f Sphere::GetNewPos() const
 {
 	return m_newPos;
 }
 
-Vector2f Sphere::GetVel() const
+Vector3f Sphere::GetVel() const
 {
 	return m_velocity;
 }
 
-Vector2f Sphere::GetNewVel() const
+Vector3f Sphere::GetNewVel() const
 {
 	return m_newVelocity;
 }
@@ -164,13 +164,16 @@ float Sphere::GetRadius() const
 void Sphere::Render() const									
 {
 	glPushMatrix();
-		glTranslatef(m_pos.GetX(), m_pos.GetY(), 0);
-		glColor3d(1, 0, 0);
-		glBindTexture(GL_TEXTURE_2D, m_texture);               // Select Our Texture
+		glTranslatef(GetPos().GetX(), GetPos().GetY(), 0);
+		glColor3d(1, 0, 0); // Here to change Color
+		glBindTexture(GL_TEXTURE_2D, GetTexture());               // Select Our Texture
 		GLUquadric *quadric = gluNewQuadric();
 		gluQuadricDrawStyle(quadric, GLU_FILL);
 		gluQuadricTexture(quadric, GL_TRUE);
 		gluQuadricNormals(quadric, GLU_SMOOTH);
 		gluSphere(quadric, m_radius, 20, 20);
+		
 	glPopMatrix();
 }
+
+

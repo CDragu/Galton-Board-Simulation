@@ -26,7 +26,7 @@ private:
 	float m_dt;
 	int	  m_fps;
 	float m_previousTime;
-	std::list<Sphere> ListOfSpheres;
+	std::list<Shape*> ListOfShapes;
 	Sphere *m_sphere1;
 	Sphere *m_sphere2;
 	Sphere *m_sphere3;

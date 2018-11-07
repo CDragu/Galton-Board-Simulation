@@ -40,17 +40,78 @@ float Vector3f::GetZ() const
 
 Vector3f Vector3f::add(const Vector3f & vec) const
 {
-	return Vector3f(this->GetX()+vec.GetX(), this->GetY() + vec.GetY(), this->GetZ() + vec.GetZ());
+	return Vector3f(m_x+vec.GetX(), m_y + vec.GetY(), m_z + vec.GetZ());
 }
 
 Vector3f Vector3f::subtract(const Vector3f & vec) const
 {
-	return Vector3f(this->GetX() - vec.GetX(), this->GetY() - vec.GetY(), this->GetZ() - vec.GetZ());
+	return Vector3f(m_x - vec.GetX(), m_y - vec.GetY(), m_z - vec.GetZ());
 }
 
 Vector3f Vector3f::mult(const float n) const
 {
-	return Vector3f(this->GetX() * n, this->GetY() * n, this->GetZ() * n);
+	return Vector3f(m_x * n, m_y * n, m_z * n);
+}
+
+Vector3f Vector3f::divide(float n) const
+{
+	return Vector3f(m_x / n, m_y / n, m_z / n);
+}
+
+float Vector3f::dot(const Vector3f& vec) const
+{
+	return m_x * vec.GetX() + m_y * vec.GetY() + m_z * vec.GetZ();
+}
+
+Vector3f Vector3f::cross(const Vector3f& vec) const
+{
+	float x = m_y * vec.GetZ() - m_z * vec.GetY();
+	float y = m_z * vec.GetX() - m_x * vec.GetZ();
+	float z = m_x * vec.GetY() - m_y * vec.GetX();
+
+	return Vector3f(x, y, z);
+}
+
+float Vector3f::length() const
+{
+	return sqrt(m_x*m_x + m_y * m_y + m_z*m_z);
+}
+
+float Vector3f::distance(const Vector3f& vec) const
+{
+	return subtract(vec).length();
+}
+
+Vector3f Vector3f::normalise()
+{
+	float len = length();
+	Set(m_x / len, m_y / len, m_z / len);
+	return *this;
+}
+
+Vector3f operator+ (const Vector3f &lhs, const Vector3f &rhs)
+{
+	return lhs.add(rhs);
+}
+
+Vector3f operator- (const Vector3f &lhs, const Vector3f &rhs)
+{
+	return lhs.subtract(rhs);
+}
+
+Vector3f operator* (const Vector3f &lhs, float n)
+{
+	return lhs.mult(n);
+}
+
+Vector3f operator* (float n, const Vector3f &rhs)
+{
+	return rhs.mult(n);
+}
+
+Vector3f operator/ (const Vector3f &lhs, float n)
+{
+	return lhs.divide(n);
 }
 
 

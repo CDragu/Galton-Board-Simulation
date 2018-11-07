@@ -2,21 +2,23 @@
 #include <gl\gl.h>                                // Header File For The OpenGL32 Library
 #include <gl\GLU.h>
 #include <wincon.h>
+#include <iostream>
+#include <ctime>
 
 Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 {
-	for (size_t i = 0; i < 4; i++)
+	for (size_t i = 0; i < 2; i++)
 	{
 		Sphere *m_sphere;
 		m_sphere = new Sphere();
 		m_sphere->SetName(std::to_string(i));
-		m_sphere->SetPos(0, 15 * i+1);
-		m_sphere->SetVel(0, -5);
+		m_sphere->SetPos(0, 15 * i+1, 0);
+		m_sphere->SetVel(0, -5, 0);
 		m_sphere->SetMass(750.0f);
-		m_sphere->SetVel(0, 0);
-		m_sphere->SetNewVel(Vector2f(0.0f, 0.0f));
-
-		ListOfSpheres.push_back(*m_sphere);
+		m_sphere->SetVel(0, 0, 0);
+		m_sphere->SetNewVel(Vector3f(0.0f, 0.0f, 0.0f));
+		m_sphere->SetName("Sphere");
+		ListOfShapes.push_back(m_sphere);
 	}
 
 	m_manifold = new ContactManifold();
@@ -27,12 +29,12 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 
 Game::~Game(void)
 {
-	/*for (auto& sphere : ListOfSpheres)
+	/*for (auto& sphere : ListOfShapes)
 	{
 		delete &sphere;
 	}*/
 
-	ListOfSpheres.clear();
+	ListOfShapes.clear();
 
 	delete m_manifold;
 }
@@ -43,6 +45,7 @@ void Game::Update()
 	// The simulation loop should be on its own thread(s)
 	// **************************************************
 	SimulationLoop();
+	
 	Render();
 }
 
@@ -75,24 +78,24 @@ void Game::SimulationLoop()
 //**************************Update the physics calculations on each object***********************
 void Game::CalculateObjectPhysics()
 {
-	for (auto& sphere : ListOfSpheres)
+	for (Shape* shape : ListOfShapes)
 	{
-		sphere.CalculatePhysics(m_dt);
+		dynamic_cast<Sphere*>(shape)->CalculatePhysics(m_dt);
 	}
 }
 
 //**************************Handle dynamic collisions***********************
 void Game::DynamicCollisionDetection()
 {
-	for (int i = 0; i <= ListOfSpheres.size(); i++)
+	for (int i = 0; i <= ListOfShapes.size(); i++)
 	{
-		for (int j = i+1; j < ListOfSpheres.size(); j++)
+		for (int j = i+1; j < ListOfShapes.size(); j++)
 		{
-			Sphere& it1 = *std::next(ListOfSpheres.begin(), i);
-			Sphere& it2 = *std::next(ListOfSpheres.begin(), j);
+			Shape* it1 = *std::next(ListOfShapes.begin(), i);
+			Shape* it2 = *std::next(ListOfShapes.begin(), j);
 
-			//std::next(ListOfSpheres.begin(), i)->CollisionWithSphere(&*std::next(ListOfSpheres.begin(), j), m_manifold);
-			it1.CollisionWithSphere(&it2, m_manifold);
+			//std::next(ListOfShapes.begin(), i)->CollisionWithSphere(&*std::next(ListOfShapes.begin(), j), m_manifold);
+			dynamic_cast<Sphere*>(it1)->CollisionWithSphere(dynamic_cast<Sphere*>(it2), m_manifold);
 		}
 	}
 }
@@ -110,9 +113,9 @@ void Game::DynamicCollisionResponse()
 //**************************Update the physics calculations on each object***********************
 void Game::UpdateObjectPhysics()
 {
-	for (auto& sphere : ListOfSpheres)
+	for (auto& shape : ListOfShapes)
 	{
-		sphere.Update();
+		dynamic_cast<Sphere*>(shape)->Update();
 	}
 }
 
@@ -134,9 +137,9 @@ void Game::Render()									// Here's Where We Do All The Drawing
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
-	for (auto& sphere : ListOfSpheres)
+	for (auto& shape : ListOfShapes)
 	{
-		sphere.Render();
+		shape->Render();
 	}
 
 	SwapBuffers(m_hdc);				// Swap Buffers (Double Buffering)

@@ -16,7 +16,7 @@ public:
 	Vector3f mult(float n) const;
 	Vector3f divide(float n) const;
 	float dot(const Vector3f &vec) const;
-	float cross(const Vector3f &vec) const;
+	Vector3f cross(const Vector3f &vec) const;
 	float length() const;
 	float distance(const Vector3f &vec) const;
 	Vector3f normalise();

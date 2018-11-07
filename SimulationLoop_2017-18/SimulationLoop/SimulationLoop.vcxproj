@@ -97,8 +97,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ContactManifold.cpp" />
+    <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="Vector2f.cpp" />
@@ -106,7 +108,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ContactManifold.h" />
+    <ClInclude Include="Cylinder.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Shape.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="Vector2f.h" />
