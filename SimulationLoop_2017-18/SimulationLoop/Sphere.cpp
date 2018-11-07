@@ -166,10 +166,10 @@ void Sphere::Render() const
 	glPushMatrix();
 		glTranslatef(GetPos().GetX(), GetPos().GetY(), 0);
 		glColor3d(1, 0, 0); // Here to change Color
-		glBindTexture(GL_TEXTURE_2D, GetTexture());               // Select Our Texture
+		glBindTexture(GL_TEXTURE_2D, GetTexture());               // Select Our Texture, Maybe bad for performance
 		GLUquadric *quadric = gluNewQuadric();
 		gluQuadricDrawStyle(quadric, GLU_FILL);
-		gluQuadricTexture(quadric, GL_TRUE);
+		gluQuadricTexture(quadric, GL_TRUE); 
 		gluQuadricNormals(quadric, GLU_SMOOTH);
 		gluSphere(quadric, m_radius, 20, 20);
 		

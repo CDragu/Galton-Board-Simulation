@@ -4,14 +4,15 @@
 #include <wincon.h>
 #include <iostream>
 #include <ctime>
+#include "Cube.h"
+#include "Cylinder.h"
+
 
 Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 {
 	for (size_t i = 0; i < 2; i++)
 	{
-		Sphere *m_sphere;
-		m_sphere = new Sphere();
-		m_sphere->SetName(std::to_string(i));
+		Sphere* m_sphere = new Sphere();
 		m_sphere->SetPos(0, 15 * i+1, 0);
 		m_sphere->SetVel(0, -5, 0);
 		m_sphere->SetMass(750.0f);
@@ -20,6 +21,24 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 		m_sphere->SetName("Sphere");
 		ListOfShapes.push_back(m_sphere);
 	}
+
+	//Construct Floor;
+	Cube* m_cube = new Cube();
+	m_cube->SetPos(0, -21.5f, 0);
+	m_cube->SetName("Cube");
+	m_cube->SetSize(1);
+	m_cube->SetHeight(3);
+	m_cube->SetLength(100);
+	m_cube->SetWidth(100);
+	ListOfShapes.push_back(m_cube);
+
+	Cylinder* m_cylinder = new Cylinder();
+	m_cylinder->SetPos(20, 10, 0);
+	m_cylinder->SetName("Cylinder");
+	m_cylinder->SetRadius(4.0f);
+	m_cylinder->SetHeight(50.0f);
+	ListOfShapes.push_back(m_cylinder);
+
 
 	m_manifold = new ContactManifold();
 
@@ -80,7 +99,11 @@ void Game::CalculateObjectPhysics()
 {
 	for (Shape* shape : ListOfShapes)
 	{
-		dynamic_cast<Sphere*>(shape)->CalculatePhysics(m_dt);
+		if(shape->GetName() == "Sphere")
+		{
+			dynamic_cast<Sphere*>(shape)->CalculatePhysics(m_dt);
+		}
+		
 	}
 }
 
@@ -94,8 +117,10 @@ void Game::DynamicCollisionDetection()
 			Shape* it1 = *std::next(ListOfShapes.begin(), i);
 			Shape* it2 = *std::next(ListOfShapes.begin(), j);
 
-			//std::next(ListOfShapes.begin(), i)->CollisionWithSphere(&*std::next(ListOfShapes.begin(), j), m_manifold);
-			dynamic_cast<Sphere*>(it1)->CollisionWithSphere(dynamic_cast<Sphere*>(it2), m_manifold);
+			if (it1->GetName() == "Sphere" && it2->GetName() == "Sphere")
+			{
+				dynamic_cast<Sphere*>(it1)->CollisionWithSphere(dynamic_cast<Sphere*>(it2), m_manifold);
+			}
 		}
 	}
 }
@@ -115,7 +140,10 @@ void Game::UpdateObjectPhysics()
 {
 	for (auto& shape : ListOfShapes)
 	{
-		dynamic_cast<Sphere*>(shape)->Update();
+		if (shape->GetName() == "Sphere")
+		{
+			dynamic_cast<Sphere*>(shape)->Update();
+		}
 	}
 }
 
@@ -124,17 +152,17 @@ void Game::Render()									// Here's Where We Do All The Drawing
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
 	glLoadIdentity();									// Reset The Current Modelview Matrix
-	gluLookAt(0, 50, 100, 0, 0, 0, 0, 1, 0);
+	gluLookAt(50, 50, 200, 0, 0, 0, 0, 1, 0);
 
 	glDisable(GL_TEXTURE_2D);
 	// Draw plane (at y=-20)
-	glBegin(GL_QUADS);
+	/*glBegin(GL_QUADS);
 		glColor3d(1, 1, 1);
 		glVertex3d(-50, -20, -50);
 		glVertex3d( 50, -20, -50);
 		glVertex3d( 50, -20,  50);
 		glVertex3d(-50, -20,  50);
-	glEnd();
+	glEnd();*/
 
 	glEnable(GL_TEXTURE_2D);
 	for (auto& shape : ListOfShapes)

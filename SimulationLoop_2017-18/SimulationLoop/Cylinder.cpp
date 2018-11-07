@@ -14,6 +14,17 @@ Cylinder::Cylinder(void) :Shape(), m_radius(5), m_height(2)
 Cylinder::~Cylinder()
 = default;
 
+void Cylinder::SetRadius(const float p_radius)
+{
+	m_radius = p_radius;
+}
+
+void Cylinder::SetHeight(const float p_height)
+{
+	m_height = p_height;
+}
+
+
 //void Cylinder::SetName(std::string name)
 //{
 //	m_name = name;
@@ -49,6 +60,7 @@ void Cylinder::Render() const
 {
 	glPushMatrix();
 	glTranslatef(GetPos().GetX(), GetPos().GetY(), 0);
+	//glRotatef(90, 1, 0, 0);
 	glColor3d(1, 0, 1); // Here to change Color
 	glBindTexture(GL_TEXTURE_2D, GetTexture());               // Select Our Texture
 	GLUquadric *quadric = gluNewQuadric();
