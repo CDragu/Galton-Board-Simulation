@@ -1,4 +1,6 @@
 #pragma once
+#include "Cube.h"
+
 class Vector3f
 {
 public:
@@ -20,6 +22,14 @@ public:
 	float length() const;
 	float distance(const Vector3f &vec) const;
 	Vector3f normalise();
+
+	float DistanceToLine(const Vector3f& v1, const Vector3f& v2) const;
+
+	float SquareDistancePointSolidBox(Cube c, Vector3f v)
+	{
+		auto D = v - c.GetPos();
+		auto s0 = 
+	}
 
 private:
 	float m_x, m_y, m_z;

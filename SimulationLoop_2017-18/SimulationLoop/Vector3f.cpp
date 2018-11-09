@@ -89,6 +89,17 @@ Vector3f Vector3f::normalise()
 	return *this;
 }
 
+float Vector3f::DistanceToLine(const Vector3f& v1, const Vector3f& v2) const
+{
+	return fabs(((*this - v1).cross(*this - v2).length()) / (v2 - v1).length());
+}
+
+float Vector3f::SquareDistancePointSolidBox(Cube c, Vector3f v)
+{
+	auto D = v - c.GetPos();
+	//auto s0 =
+}
+
 Vector3f operator+ (const Vector3f &lhs, const Vector3f &rhs)
 {
 	return lhs.add(rhs);

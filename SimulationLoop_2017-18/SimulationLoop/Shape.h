@@ -25,6 +25,7 @@ public:
 private:
 	std::string m_name;
 	Vector3f m_pos;
+	Vector3f m_rot;
 	int m_objectID;
 	GLuint m_texture;
 

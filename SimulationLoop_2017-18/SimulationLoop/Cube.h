@@ -24,5 +24,4 @@ private:
 	float m_width;
 	float m_height;
 	float m_length;
-	//Vector3f m_center;
 };
