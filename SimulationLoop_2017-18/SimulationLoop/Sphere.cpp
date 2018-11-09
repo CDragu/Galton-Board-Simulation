@@ -69,11 +69,11 @@ void Sphere::CalculatePhysics(float dt)
 	// ****************************************************************
 	// ******** Replace with better collision detection code   ********
 	// ****************************************************************
-	if(m_newPos.GetY() < -20.0f+m_radius)
+	/*if(m_newPos.GetY() < -20.0f+m_radius)
 	{
 		m_newPos.Set(m_newPos.GetX(), -20.0f + m_radius, m_newPos.GetZ());
 		m_newVelocity.Set(m_newVelocity.GetX(), 0.0f, 0.0f);
-	}
+	}*/
 }
 
 void Sphere::CollisionWithSphere(Sphere* sphere2, ContactManifold *contactManifold)
@@ -165,6 +165,9 @@ void Sphere::Render() const
 {
 	glPushMatrix();
 		glTranslatef(GetPos().GetX(), GetPos().GetY(), 0);
+		glRotatef(GetRot().GetX(), 1, 0, 0);
+		glRotatef(GetRot().GetY(), 0, 1, 0);
+		glRotatef(GetRot().GetZ(), 0, 0, 1);
 		glColor3d(1, 0, 0); // Here to change Color
 		glBindTexture(GL_TEXTURE_2D, GetTexture());               // Select Our Texture, Maybe bad for performance
 		GLUquadric *quadric = gluNewQuadric();

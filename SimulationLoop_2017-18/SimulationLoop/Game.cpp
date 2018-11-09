@@ -18,19 +18,46 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 		m_sphere->SetMass(750.0f);
 		m_sphere->SetVel(0, 0, 0);
 		m_sphere->SetNewVel(Vector3f(0.0f, 0.0f, 0.0f));
+		m_sphere->SetRot(0, 0, 0);
 		m_sphere->SetName("Sphere");
 		ListOfShapes.push_back(m_sphere);
 	}
 
-	//Construct Floor;
+	
 	Cube* m_cube = new Cube();
-	m_cube->SetPos(0, -21.5f, 0);
+	m_cube->SetPos(30, -10, 0);
 	m_cube->SetName("Cube");
 	m_cube->SetSize(1);
 	m_cube->SetHeight(3);
-	m_cube->SetLength(100);
-	m_cube->SetWidth(100);
+	m_cube->SetLength(100); 
+	m_cube->SetRot(3.14f/4.0f, 0, 0);
+	m_cube->SetWidth(50);
+	
 	ListOfShapes.push_back(m_cube);
+
+	Cube* m_cube3 = new Cube();
+	m_cube3->SetPos(-10, 0, 0);
+	m_cube3->SetName("Cube");
+	m_cube3->SetSize(1);
+	m_cube3->SetHeight(3);
+	m_cube3->SetLength(50);
+	m_cube3->SetRot(-3.14f / 4.0f, 0, 0);
+	m_cube3->SetWidth(50);
+
+	ListOfShapes.push_back(m_cube3);
+
+
+	//Construct Floor;
+	/*Cube* m_cube2 = new Cube();
+	m_cube2->SetPos(0, -21.5f, 0);
+	m_cube2->SetName("Cube");
+	m_cube2->SetSize(1);
+	m_cube2->SetHeight(3);
+	m_cube2->SetLength(100);
+	m_cube2->SetRot(0, 0, 0);
+	m_cube2->SetWidth(100);
+
+	ListOfShapes.push_back(m_cube2);*/
 
 	Cylinder* m_cylinder = new Cylinder();
 	m_cylinder->SetPos(20, 10, 0);
@@ -84,7 +111,7 @@ void Game::SimulationLoop()
 	m_manifold->Clear();
 
 	// Find dynamic collisions for all objects and add to contact manifold 
-	DynamicCollisionDetection();
+	//DynamicCollisionDetection();
 
 	// Handle dynamic collision responses using the contact manifold
 	DynamicCollisionResponse();
@@ -152,7 +179,7 @@ void Game::Render()									// Here's Where We Do All The Drawing
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
 	glLoadIdentity();									// Reset The Current Modelview Matrix
-	gluLookAt(50, 50, 200, 0, 0, 0, 0, 1, 0);
+	gluLookAt(0, 0, 200, 0, 0, 0, 0, 1, 0);
 
 	glDisable(GL_TEXTURE_2D);
 	// Draw plane (at y=-20)

@@ -1,4 +1,5 @@
 #include "Cube.h"
+#include "Rotor3f.h"
 
 Cube::Cube(void) :Shape(), m_size(1), m_width(1), m_height(1), m_length(1)
 {
@@ -47,15 +48,62 @@ void Cube::GetPoints(Vector3f points[8]) const
 
 void Cube::CalculatePoints()
 {
-	m_points[0] = Vector3f(GetPos().GetX() - m_size / 2 - m_length/2, GetPos().GetY() + m_size / 2 + m_height/2, GetPos().GetZ() + m_size / 2 + m_width/2);
-	m_points[1] = Vector3f(GetPos().GetX() + m_size / 2 + m_length/2, GetPos().GetY() + m_size / 2 + m_height/2, GetPos().GetZ() + m_size / 2 + m_width/2);
-	m_points[2] = Vector3f(GetPos().GetX() + m_size / 2 + m_length/2, GetPos().GetY() + m_size / 2 + m_height/2, GetPos().GetZ() - m_size / 2 - m_width/2);
-	m_points[3] = Vector3f(GetPos().GetX() - m_size / 2 - m_length/2, GetPos().GetY() + m_size / 2 + m_height/2, GetPos().GetZ() - m_size / 2 - m_width/2);
+	m_points[0] = Vector3f(/*GetPos().GetX()*/ - m_size / 2 - m_length/2, /*GetPos().GetY()*/ + m_size / 2 + m_height/2, /*GetPos().GetZ()*/ + m_size / 2 + m_width/2);
+	m_points[1] = Vector3f(/*GetPos().GetX()*/ + m_size / 2 + m_length/2, /*GetPos().GetY()*/ + m_size / 2 + m_height/2, /*GetPos().GetZ()*/ + m_size / 2 + m_width/2);
+	m_points[2] = Vector3f(/*GetPos().GetX()*/ + m_size / 2 + m_length/2, /*GetPos().GetY()*/ + m_size / 2 + m_height/2, /*GetPos().GetZ()*/ - m_size / 2 - m_width/2);
+	m_points[3] = Vector3f(/*GetPos().GetX()*/ - m_size / 2 - m_length/2, /*GetPos().GetY()*/ + m_size / 2 + m_height/2, /*GetPos().GetZ()*/ - m_size / 2 - m_width/2);
+						   /*				*/							  /*			   */							 /*				  */
+	m_points[4] = Vector3f(/*GetPos().GetX()*/ - m_size / 2 - m_length/2, /*GetPos().GetY()*/ - m_size / 2 - m_height/2, /*GetPos().GetZ()*/ + m_size / 2 + m_width/2);
+	m_points[5] = Vector3f(/*GetPos().GetX()*/ + m_size / 2 + m_length/2, /*GetPos().GetY()*/ - m_size / 2 - m_height/2, /*GetPos().GetZ()*/ + m_size / 2 + m_width/2);
+	m_points[6] = Vector3f(/*GetPos().GetX()*/ + m_size / 2 + m_length/2, /*GetPos().GetY()*/ - m_size / 2 - m_height/2, /*GetPos().GetZ()*/ - m_size / 2 - m_width/2);
+	m_points[7] = Vector3f(/*GetPos().GetX()*/ - m_size / 2 - m_length/2, /*GetPos().GetY()*/ - m_size / 2 - m_height/2, /*GetPos().GetZ()*/ - m_size / 2 - m_width/2);
+
+	//Rotor3 *rotx = new Rotor3(Vector3f(0, 0, 0), Vector3f(3.14f / 2.0f, 0, 0));
+	Rotor3 *rotx = new Rotor3(GetRot().GetX(), Bivector3(1, 0, 0));
+	m_points[0] = rotx->rotate(m_points[0]);
+	m_points[1] = rotx->rotate(m_points[1]);
+	m_points[2] = rotx->rotate(m_points[2]);
+	m_points[3] = rotx->rotate(m_points[3]);
+				  
+	m_points[4] = rotx->rotate(m_points[4]);
+	m_points[5] = rotx->rotate(m_points[5]);
+	m_points[6] = rotx->rotate(m_points[6]);
+	m_points[7] = rotx->rotate(m_points[7]);
+
+	Rotor3 *roty = new Rotor3(GetRot().GetY(), Bivector3(0, 1, 0));
+	m_points[0] = roty->rotate(m_points[0]);
+	m_points[1] = roty->rotate(m_points[1]);
+	m_points[2] = roty->rotate(m_points[2]);
+	m_points[3] = roty->rotate(m_points[3]);
+				  
+	m_points[4] = roty->rotate(m_points[4]);
+	m_points[5] = roty->rotate(m_points[5]);
+	m_points[6] = roty->rotate(m_points[6]);
+	m_points[7] = roty->rotate(m_points[7]);
+
+	Rotor3 *rotz = new Rotor3(GetRot().GetZ(), Bivector3(0, 0, 1));
+	m_points[0] = rotz->rotate(m_points[0]);
+	m_points[1] = rotz->rotate(m_points[1]);
+	m_points[2] = rotz->rotate(m_points[2]);
+	m_points[3] = rotz->rotate(m_points[3]);
+				  
+	m_points[4] = rotz->rotate(m_points[4]);
+	m_points[5] = rotz->rotate(m_points[5]);
+	m_points[6] = rotz->rotate(m_points[6]);
+	m_points[7] = rotz->rotate(m_points[7]);
+
+
+	m_points[0] = m_points[0] + Vector3f(GetPos().GetX(), GetPos().GetY(), GetPos().GetZ());
+	m_points[1] = m_points[1] + Vector3f(GetPos().GetX(), GetPos().GetY(), GetPos().GetZ());
+	m_points[2] = m_points[2] + Vector3f(GetPos().GetX(), GetPos().GetY(), GetPos().GetZ());
+	m_points[3] = m_points[3] + Vector3f(GetPos().GetX(), GetPos().GetY(), GetPos().GetZ());
 	
-	m_points[4] = Vector3f(GetPos().GetX() - m_size / 2 - m_length/2, GetPos().GetY() - m_size / 2 - m_height/2, GetPos().GetZ() + m_size / 2 + m_width/2);
-	m_points[5] = Vector3f(GetPos().GetX() + m_size / 2 + m_length/2, GetPos().GetY() - m_size / 2 - m_height/2, GetPos().GetZ() + m_size / 2 + m_width/2);
-	m_points[6] = Vector3f(GetPos().GetX() + m_size / 2 + m_length/2, GetPos().GetY() - m_size / 2 - m_height/2, GetPos().GetZ() - m_size / 2 - m_width/2);
-	m_points[7] = Vector3f(GetPos().GetX() - m_size / 2 - m_length/2, GetPos().GetY() - m_size / 2 - m_height/2, GetPos().GetZ() - m_size / 2 - m_width/2);
+	m_points[4] = m_points[4] + Vector3f(GetPos().GetX(), GetPos().GetY(), GetPos().GetZ());
+	m_points[5] = m_points[5] + Vector3f(GetPos().GetX(), GetPos().GetY(), GetPos().GetZ());
+	m_points[6] = m_points[6] + Vector3f(GetPos().GetX(), GetPos().GetY(), GetPos().GetZ());
+	m_points[7] = m_points[7] + Vector3f(GetPos().GetX(), GetPos().GetY(), GetPos().GetZ());
+
+
 }
 
 void Cube::Render() const

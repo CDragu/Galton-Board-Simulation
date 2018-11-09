@@ -31,6 +31,7 @@ private:
 };
 
 Vector3f operator+ (const Vector3f &lhs, const Vector3f &rhs);
+Vector3f operator+= (const Vector3f &lhs, const Vector3f &rhs);
 Vector3f operator- (const Vector3f &lhs, const Vector3f &rhs);
 Vector3f operator* (const Vector3f &lhs, float n);
 Vector3f operator* (float n, const Vector3f &lhs);

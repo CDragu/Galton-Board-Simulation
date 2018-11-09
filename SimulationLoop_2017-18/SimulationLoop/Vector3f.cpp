@@ -106,6 +106,11 @@ Vector3f operator+ (const Vector3f &lhs, const Vector3f &rhs)
 	return lhs.add(rhs);
 }
 
+Vector3f operator+=(const Vector3f& lhs, const Vector3f& rhs)
+{
+	return lhs + rhs;
+}
+
 Vector3f operator- (const Vector3f &lhs, const Vector3f &rhs)
 {
 	return lhs.subtract(rhs);
