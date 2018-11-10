@@ -1,12 +1,9 @@
 #pragma once
-
-#include "Vector3f.h"
-
-class Sphere;
+#include "Shape.h"
 
 struct ManifoldPoint {
-	Sphere *contactID1;
-	Sphere *contactID2;
+	Shape *contactID1;
+	Shape *contactID2;
 	Vector3f contactNormal;
 };
 

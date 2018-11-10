@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include "Game.h"
 
-const char TITLE[] = "Window Creation";
+const char TITLE[] = "Window 2 Creation";
 
 Game *game;
 
@@ -169,6 +169,10 @@ int WINAPI WinMain( HINSTANCE hinstance,
 	LPSTR lpcmdline,
 	int ncmdshow)
 {
+	AllocConsole();
+	AttachConsole(GetCurrentProcessId());
+	freopen("CON", "w", stdout);
+
 	WNDCLASS	winclass;	// this will hold the class we create
 	HWND		hwnd;		// generic window handle
 	MSG			msg;		// generic message

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ContactManifold.h"
 #include "Vector3f.h"
 #include <Windows.h>
 #include <gl\gl.h>  

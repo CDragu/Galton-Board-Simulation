@@ -14,6 +14,10 @@ public:
 	void SetWidth(const float p_width);
 
 	void GetPoints(Vector3f points[8]) const;
+	float GetLength() const;
+	float GetHeight() const;
+	float GetWidth() const;
+
 
 	void CalculatePoints();
 	void Render() const override;

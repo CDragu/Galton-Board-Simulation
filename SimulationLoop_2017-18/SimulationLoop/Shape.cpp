@@ -12,8 +12,7 @@ Shape::Shape() : m_name("Undefined"), m_pos(0, 0, 0), m_rot(0, 0, 0)
 
 
 Shape::~Shape()
-{
-}
+= default;
 
 void Shape::SetName(std::string name)
 {

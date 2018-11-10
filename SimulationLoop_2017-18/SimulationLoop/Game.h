@@ -20,6 +20,7 @@ private:
 	void DynamicCollisionResponse();
 	void UpdateObjectPhysics();
 	void Render();
+	void drawStrokeText(char*string, int x, int y, int z);
 
 private:
 	HDC   m_hdc;

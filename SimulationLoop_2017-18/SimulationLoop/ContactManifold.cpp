@@ -1,6 +1,4 @@
 #include "ContactManifold.h"
-#include "Sphere.h"
-#include <assert.h>
 
 ContactManifold::ContactManifold(void) : m_numOfPoints(0)
 {
@@ -8,8 +6,7 @@ ContactManifold::ContactManifold(void) : m_numOfPoints(0)
 
 
 ContactManifold::~ContactManifold(void)
-{
-}
+= default;
 
 void ContactManifold::Add(ManifoldPoint point)
 {
