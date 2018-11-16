@@ -112,7 +112,7 @@ void Sphere::CollisionWithSphere(Sphere* sphere2, ContactManifold *contactManifo
 
 void Sphere::CollisionWithCubeWithAxisSeparation(Cube* cube, ContactManifold* contact_manifold)
 {
-	Vector3 centerOfBox = cube->GetPos();
+	Vector3 centerOfSphere = m_pos;
 
 	//Eigen::Transform<float, 3, Eigen::Affine> t = 
 	//	Eigen::Translation3f(cube->GetPos().m_x, cube->GetPos().m_y, cube->GetPos().m_z)
@@ -121,15 +121,14 @@ void Sphere::CollisionWithCubeWithAxisSeparation(Cube* cube, ContactManifold* co
 
 	//t.inverse()
 
-	////Vector3f realCenter = cube.transform.transformeInverse(center);
-
-	//// Early-out check to see if we can exclude the contact.
-	//if (abs(cube->GetPos().GetX()) - this->m_radius > box.halfSize.x ||
-	//	abs(cube->GetPos().GetY() - this->m_radius > box.halfSize.y ||
-	//	abs(cube->GetPos().GetZ() - this->m_radius > box.halfSize.z)
-	//{
-	//	return;
-	//}
+	Vector3 realCenter = m_pos.Transform(centerOfSphere, cube->transform.Invert());
+	// Early-out check to see if we can exclude the contact.
+	if (abs(realCenter.x - this->m_radius > cube->m_length) ||
+		abs(realCenter.y - this->m_radius > cube->m_height) ||
+		abs(realCenter.z - this->m_radius > cube->m_width))
+	{
+		return;
+	}
 
 }
 

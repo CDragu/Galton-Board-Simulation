@@ -9,8 +9,10 @@ Shape::Shape() : m_name("Undefined"), m_pos(0, 0, 0), m_rot(0, 0, 0)
 	m_objectID = countID;
 	++countID;
 	m_texture = TextureLoader::LoadBMP("checker.bmp");
-	//TRS
-	//m_transform = 
+	//TRS TODO:this
+	transform = DirectX::SimpleMath::Matrix::Identity;
+	transform = DirectX::SimpleMath::Matrix::CreateTranslation(m_pos).CreateFromYawPitchRoll(m_rot.x, m_rot.y, m_rot.z).CreateScale(m_scale);
+
 }
 
 
@@ -25,6 +27,9 @@ void Shape::SetName(std::string name)
 void Shape::SetPos(float x, float y, float z)
 {
 	m_pos = Vector3(x, y, z);
+	//TRS
+	transform = DirectX::SimpleMath::Matrix::Identity;
+	transform = DirectX::SimpleMath::Matrix::CreateTranslation(m_pos).CreateFromYawPitchRoll(m_rot.x, m_rot.y, m_rot.z).CreateScale(m_scale);
 }
 
 void Shape::SetTexture(GLuint texture)
@@ -35,6 +40,9 @@ void Shape::SetTexture(GLuint texture)
 void Shape::SetRot(float x, float y, float z)
 {
 	m_rot = Vector3(x, y, z);
+	//TRS
+	transform = DirectX::SimpleMath::Matrix::Identity;
+	transform = DirectX::SimpleMath::Matrix::CreateTranslation(m_pos).CreateFromYawPitchRoll(m_rot.x, m_rot.y, m_rot.z).CreateScale(m_scale);
 }
 
 std::string Shape::GetName()const

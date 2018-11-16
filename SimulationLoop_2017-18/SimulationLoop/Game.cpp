@@ -11,11 +11,11 @@
 
 Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 {
-	for (size_t i = 0; i < 200; i++)
+	for (size_t i = 0; i < 2; i++)
 	{
 		Sphere* m_sphere = new Sphere();
 		m_sphere->SetPos(0.2, 30 * (i+1), 0.3);
-		m_sphere->SetRadius(1.0f);
+		m_sphere->SetRadius(3.0f);
 		m_sphere->SetVel(0, -5, 0);
 		m_sphere->SetMass(750.0f);
 		m_sphere->SetVel(0, 0, 0);
@@ -111,7 +111,7 @@ void Game::SimulationLoop()
 	m_manifold->Clear();
 
 	// Find dynamic collisions for all objects and add to contact manifold 
-	//DynamicCollisionDetection();
+	DynamicCollisionDetection();
 
 	// Handle dynamic collision responses using the contact manifold
 	DynamicCollisionResponse();
@@ -151,7 +151,7 @@ void Game::DynamicCollisionDetection()
 
 			if ((*it1)->GetName() == "Sphere" && (*it2)->GetName() == "Cube")
 			{
-				dynamic_cast<Sphere*>(*it1)->CollisionWithCube(dynamic_cast<Cube*>(*it2), m_manifold);
+				dynamic_cast<Sphere*>(*it1)->CollisionWithCubeWithAxisSeparation(dynamic_cast<Cube*>(*it2), m_manifold);
 			}
 		}
 	}
