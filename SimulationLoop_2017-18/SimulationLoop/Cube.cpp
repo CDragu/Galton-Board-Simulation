@@ -108,6 +108,15 @@ void Cube::CalculatePoints()
 	m_points[6] = rotz->rotate(m_points[6]);
 	m_points[7] = rotz->rotate(m_points[7]);
 
+	/*m_points[0] = rotation.rotate(m_points[0]);
+	m_points[1] = rotation.rotate(m_points[1]);
+	m_points[2] = rotation.rotate(m_points[2]);
+	m_points[3] = rotation.rotate(m_points[3]);
+				 
+	m_points[4] = rotation.rotate(m_points[4]);
+	m_points[5] = rotation.rotate(m_points[5]);
+	m_points[6] = rotation.rotate(m_points[6]);
+	m_points[7] = rotation.rotate(m_points[7]);*/
 
 	m_points[0] = m_points[0] + GetPos();
 	m_points[1] = m_points[1] + GetPos();

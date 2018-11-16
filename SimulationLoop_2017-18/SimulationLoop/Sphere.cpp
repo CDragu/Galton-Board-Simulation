@@ -7,29 +7,10 @@
 #include "Rotor3f.h"
 #include <iostream>
 
-
-//int Sphere::countID = 0;
-
-Sphere::Sphere(void) : Shape(), m_mass(1), m_radius(5)
-{
-	//m_objectID = countID;
-	//++countID;
-	//m_texture = TextureLoader::LoadBMP("checker.bmp");
-}
+Sphere::Sphere(void) : Shape(), m_mass(1), m_radius(5){}
 
 Sphere::~Sphere(void)
-{
-}
-
-//void Sphere::SetName(std::string name)
-//{
-//	m_name = name;
-//}
-
-//void Sphere::SetPos(float x, float y, float z)
-//{
-//	m_pos.Set(x, y, z);
-//}
+= default;
 
 void Sphere::SetNewPos(Vector3 pos)
 {
@@ -112,24 +93,93 @@ void Sphere::CollisionWithSphere(Sphere* sphere2, ContactManifold *contactManifo
 
 void Sphere::CollisionWithCubeWithAxisSeparation(Cube* cube, ContactManifold* contact_manifold)
 {
-	Vector3 centerOfSphere = m_pos;
+	//TOdo: remove
+	Vector3 t_scale;
+	Vector3 t_pos;
+	Quaternion t_rot;
+	
+	cube->transform.Decompose(t_scale, t_rot, t_pos);
+	std::cout <<
+		std::endl << std::endl <<
+		std::to_string(t_pos.x) << " " <<
+		std::to_string(t_pos.y) << " " <<
+		std::to_string(t_pos.z) << " " << std::endl<<
+		std::to_string(t_scale.x) << " " <<
+		std::to_string(t_scale.y) << " " <<
+		std::to_string(t_scale.z) << " " << std::endl <<
+		std::to_string(t_rot.x) << " " <<
+		std::to_string(t_rot.y) << " " <<
+		std::to_string(t_rot.z) << " " <<
+		std::to_string(t_rot.w) << " " <<
+		std::endl << std::endl;
 
-	//Eigen::Transform<float, 3, Eigen::Affine> t = 
-	//	Eigen::Translation3f(cube->GetPos().m_x, cube->GetPos().m_y, cube->GetPos().m_z)
-	//	/* Eigen::AngleAxisf(1, ) */
-	//	* Eigen::Scaling(1.0f);
 
-	//t.inverse()
-
-	Vector3 realCenter = m_pos.Transform(centerOfSphere, cube->transform.Invert());
+	Vector3 center = m_pos;
+	Matrix inverseDX = DirectX::XMMatrixInverse(nullptr, cube->transform);
+	Vector3 ballInCubeSpace = Vector3::Transform(center, inverseDX);
+	Vector3 halfSize = Vector3(cube->m_length/2, cube->m_height/2, cube->m_width/2);
+	
+	//Todo: remove
+	if(this->m_objectID == 0)
+	{
+		std::cout<<"Ball in Cube Space: " << std::to_string(ballInCubeSpace.x) << " " << std::to_string(ballInCubeSpace.y) << " " << std::to_string(ballInCubeSpace.z) << std::endl;
+	}
+	
 	// Early-out check to see if we can exclude the contact.
-	if (abs(realCenter.x - this->m_radius > cube->m_length) ||
-		abs(realCenter.y - this->m_radius > cube->m_height) ||
-		abs(realCenter.z - this->m_radius > cube->m_width))
+	if (abs(ballInCubeSpace.x) - this->m_radius > halfSize.x ||
+		abs(ballInCubeSpace.y) - this->m_radius > halfSize.y ||
+		abs(ballInCubeSpace.z) - this->m_radius > halfSize.z)
 	{
 		return;
 	}
+	Vector3 closestPt;
+	float dist;
 
+	dist = ballInCubeSpace.x;
+	if (dist > halfSize.x) dist = halfSize.x;
+	if (dist < -halfSize.x) dist = -halfSize.x;
+	closestPt.x = dist;
+	
+	dist = ballInCubeSpace.y;
+	if (dist > halfSize.y) dist = halfSize.y;
+	if (dist < -halfSize.y) dist = -halfSize.y;
+	closestPt.y = dist;
+
+	dist = ballInCubeSpace.z;
+	if (dist > halfSize.z) dist = halfSize.z;
+	if (dist < -halfSize.z) dist = -halfSize.z;
+	closestPt.z = dist;
+
+	// Check we’re in contact.
+	dist = Vector3::DistanceSquared(closestPt, ballInCubeSpace);
+
+	//Todo: remove
+	if (this->m_objectID == 0)
+	{
+		std::cout << std::to_string(dist) << std::endl << "Closest Point(Point of impact) : " <<
+			std::to_string(closestPt.x) << " " <<
+			std::to_string(closestPt.y) << " " <<
+			std::to_string(closestPt.z) << " " <<
+			std::endl << std::endl;
+	}
+
+	if (dist > (this->m_radius * this->m_radius)) {
+		return;
+	}
+
+	Vector3 closestPtWorld = closestPtWorld.Transform(closestPt, cube->transform);
+
+	ManifoldPoint mp;
+	mp.contactID1 = this;
+	mp.contactID2 = cube;
+	auto contactNormal = (center - closestPtWorld);
+	(contactNormal).Normalize(mp.contactNormal);
+	mp.contactPoint = closestPtWorld;
+	mp.penetration = this->m_radius - sqrt(dist);
+	contact_manifold->Add(mp);
+
+	//Todo: solving penetration fast
+	m_pos += contactNormal * mp.penetration;
 }
 
 void Sphere::CollisionWithCube(Cube* cube, ContactManifold* contactManifold)
@@ -290,11 +340,6 @@ float Sphere::GetMass() const
 {
 	return m_mass;
 }
-
-//Vector3f Sphere::GetPos() const
-//{
-//	return m_pos;
-//}
 
 Vector3 Sphere::GetNewPos() const
 {

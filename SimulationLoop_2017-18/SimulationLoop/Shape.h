@@ -1,9 +1,8 @@
 #pragma once
-
-
 #include <Windows.h>
 #include <gl\gl.h>  
 #include <string>
+#include "Rotor3f.h"
 #include "d3d11.h"
 #include "SimpleMath.h"
 using namespace DirectX::SimpleMath;
@@ -24,7 +23,10 @@ public:
 	Vector3 GetPos() const;
 	GLuint GetTexture() const;
 	Vector3 GetRot() const;
+	Quaternion CreateQuaternion() const;
+	Rotor3 CrateRotor() const;
 
+	Matrix CreateTransformMatrix();
 	virtual void Render() const;
 
 	std::string m_name;
@@ -33,6 +35,7 @@ public:
 	Vector3 m_scale;
 
 	Matrix transform;
+	Rotor3 rotation;
 
 	//Rendering stuff
 	int m_objectID;

@@ -30,9 +30,7 @@ public:
 	//Experimental TODO: Remove if not working
 	std::list<Node*> ListOfNodes;
 	
-	Sphere *m_sphere1;
-	Sphere *m_sphere2;
-	Sphere *m_sphere3;
+	Vector3 eye;
 	ContactManifold *m_manifold;
 	LARGE_INTEGER start, end, frequency;
 };

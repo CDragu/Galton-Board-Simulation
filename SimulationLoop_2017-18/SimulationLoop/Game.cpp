@@ -11,7 +11,9 @@
 
 Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 {
-	for (size_t i = 0; i < 2; i++)
+	eye = Vector3(0, 0, 200);
+	
+	for (size_t i = 0; i < 1; i++)
 	{
 		Sphere* m_sphere = new Sphere();
 		m_sphere->SetPos(0.2, 30 * (i+1), 0.3);
@@ -20,7 +22,7 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 		m_sphere->SetMass(750.0f);
 		m_sphere->SetVel(0, 0, 0);
 		m_sphere->SetNewVel(Vector3(0.0f, 0.0f, 0.0f));
-		m_sphere->SetRot(0, 0, 0);
+		m_sphere->SetRot(0, 3.14f / 4.0f, 0); //TODO: this is rendered in euler but matrix has to be in radian
 		m_sphere->SetName("Sphere");
 		ListOfShapes.push_back(m_sphere);
 		//Experimental TODO: Remove if not working
@@ -30,13 +32,15 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 
 	
 	Cube* m_cube = new Cube();
-	m_cube->SetPos(0, -30, 30);
+	m_cube->SetPos(0, -30, 0.3);
 	m_cube->SetName("Cube");
 	m_cube->SetSize(1);
 	m_cube->SetHeight(3);
 	m_cube->SetLength(100); 
-	m_cube->SetRot(3.14f/4.0f, -3.14f / 4.0f, 0);
+	m_cube->SetRot(3.14f/4.0f, -3.14f / 4.0f, 3.14f / 4.0f);
+	//m_cube->SetRot(0, 0, 0.383f);
 	m_cube->SetWidth(50);
+	m_cube->CreateTransformMatrix();
 	
 	ListOfShapes.push_back(m_cube);
 
@@ -53,16 +57,16 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 
 
 	//Construct Floor;
-	Cube* m_cube2 = new Cube();
-	m_cube2->SetPos(0, -41.5f, 0);
-	m_cube2->SetName("Cube");
-	m_cube2->SetSize(1);
-	m_cube2->SetHeight(3);
-	m_cube2->SetLength(100);
-	m_cube2->SetRot(0, 0, 0);
-	m_cube2->SetWidth(100);
+	//Cube* m_cube2 = new Cube();
+	//m_cube2->SetPos(0.2f, -40.0f, 0.3f);
+	//m_cube2->SetName("Cube");
+	//m_cube2->SetSize(1);
+	//m_cube2->SetHeight(3);
+	//m_cube2->SetLength(100);
+	//m_cube2->SetRot(0, 0, 0);
+	//m_cube2->SetWidth(100);
 
-	ListOfShapes.push_back(m_cube2);
+	//ListOfShapes.push_back(m_cube2);
 
 	Cylinder* m_cylinder = new Cylinder();
 	m_cylinder->SetPos(20, 10, 0);
@@ -90,7 +94,7 @@ void Game::Update()
 	// **************************************************
 	// The simulation loop should be on its own thread(s)
 	// **************************************************
-	SimulationLoop();
+	//SimulationLoop();
 	
 	Render();
 }
@@ -194,7 +198,7 @@ void Game::Render()									// Here's Where We Do All The Drawing
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
 	glLoadIdentity();									// Reset The Current Modelview Matrix
-	gluLookAt(0, 0, 200, 0, 0, 0, 0, 1, 0);
+	gluLookAt(eye.x, eye.y, eye.z, 0, 0, 0, 0, 1, 0);
 
 	glDisable(GL_TEXTURE_2D);
 
@@ -214,6 +218,23 @@ void Game::KeyboardResponse(const char key)
 	if(key == 'U')
 	{
 		SimulationLoop();
+	}
+
+	if(key == 'W')
+	{
+		eye.z -= 10;
+	}
+	if (key == 'S')
+	{
+		eye.z += 10;
+	}
+	if (key == 'A')
+	{
+		eye.x -= 10;
+	}
+	if (key == 'D')
+	{
+		eye.x += 10;
 	}
 }
 

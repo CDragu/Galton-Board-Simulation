@@ -1,12 +1,6 @@
 #include "Rotor3f.h"
 #include <math.h>
 
-Rotor3f::Rotor3f()
-= default;
-
-Rotor3f::~Rotor3f()
-= default;
-
 Bivector3::Bivector3(float b01, float b02, float b12)
 	: b01(b01), b02(b02), b12(b12) {}
 
@@ -49,32 +43,6 @@ Rotor3::Rotor3(float angleRadian, const Bivector3& bvPlane)
 	b12 = -sina * bvPlane.b12;
 }
 
-// Rotor3-Rotor3 product
-// non-optimized
-inline Rotor3 Rotor3::operator*(const Rotor3& q) const
-{
-	const Rotor3& p = *this;
-	Rotor3 r;
-
-	// here we just expanded the geometric product rules
-
-
-
-	r.a = p.a * q.a
-		- p.b01 * q.b01 - p.b02 * q.b02 - p.b12 * q.b12;
-
-	r.b01 = p.b01 * q.a + p.a   * q.b01
-		+ p.b12 * q.b02 - p.b02 * q.b12;
-
-	r.b02 = p.b02 * q.a + p.a   * q.b02
-		- p.b12 * q.b01 + p.b01 * q.b12;
-
-	r.b12 = p.b12 * q.a + p.a   * q.b12
-		+ p.b02 * q.b01 - p.b01 * q.b02;
-
-	return r;
-}
-
 /// R x R*
 // non-optimized
 Vector3 Rotor3::rotate(const Vector3& x) const
@@ -99,42 +67,68 @@ Vector3 Rotor3::rotate(const Vector3& x) const
 	return Vector3(r_x, r_y, r_z);
 }
 
-// Rotor3-Rotor3 product
-inline Rotor3 Rotor3::operator*=(const Rotor3& r)
-{
-	(*this) = (*this) * r;
-	return *this;
-}
-
 // rotate a rotor by another
-inline Rotor3 Rotor3::rotate(const Rotor3& r) const
+Rotor3 Rotor3::rotate(const Rotor3 r) const
 {
 	// should unwrap this for efficiency
 	return (*this) * r * (*this).reverse();
 }
 
+// Rotor3-Rotor3 product
+// non-optimized
+Rotor3 Rotor3::operator*(const Rotor3& q) const
+{
+	const Rotor3& p = *this;
+	Rotor3 r;
+
+	// here we just expanded the geometric product rules
+	r.a = p.a * q.a
+		- p.b01 * q.b01 - p.b02 * q.b02 - p.b12 * q.b12;
+
+	r.b01 = p.b01 * q.a + p.a   * q.b01
+		+ p.b12 * q.b02 - p.b02 * q.b12;
+
+	r.b02 = p.b02 * q.a + p.a   * q.b02
+		- p.b12 * q.b01 + p.b01 * q.b12;
+
+	r.b12 = p.b12 * q.a + p.a   * q.b12
+		+ p.b02 * q.b01 - p.b01 * q.b02;
+
+	return r;
+}
+
+// Rotor3-Rotor3 product
+Rotor3 Rotor3::operator*=(const Rotor3& r)
+{
+	(*this) = (*this) * r;
+	return *this;
+}
 
 // Equivalent to conjugate
 inline Rotor3 Rotor3::reverse() const
 {
 	return Rotor3(a, -b01, -b02, -b12);
 }
+
 // Length Squared
 inline float Rotor3::lengthsqrd() const
 {
 	return sqrtf(a) + sqrtf(b01) + sqrtf(b02) + sqrtf(b12);
 }
+
 // Length
 inline float Rotor3::length() const
 {
 	return sqrt(lengthsqrd());
 }
+
 // Normalize
 inline void Rotor3::normalize()
 {
 	float l = length();
 	a /= l; b01 /= l; b02 /= l; b12 /= l;
 }
+
 // Normalized rotor
 inline Rotor3 Rotor3::normal() const
 {
@@ -143,15 +137,15 @@ inline Rotor3 Rotor3::normal() const
 	return r;
 }
 
-// convert to matrix
-// non-optimized
-//inline Matrix3 Rotor3::toMatrix3() const
-//{
-//	Vector3 v0 = rotate(Vector3(1, 0, 0));
-//	Vector3 v1 = rotate(Vector3(0, 1, 0));
-//	Vector3 v2 = rotate(Vector3(0, 0, 1));
-//	return Matrix3(v0, v1, v2);
-//}
+ /*convert to matrix
+ non-optimized*/
+Matrix Rotor3::toMatrix3() const
+{
+	Vector3 v0 = rotate(Vector3(1, 0, 0));
+	Vector3 v1 = rotate(Vector3(0, 1, 0));
+	Vector3 v2 = rotate(Vector3(0, 0, 1));
+	return Matrix(v0, v1, v2);
+}
 
 // geometric product (for reference), produces twice the angle, negative direction
 inline Rotor3 Geo(const Vector3 & a, const Vector3 & b)

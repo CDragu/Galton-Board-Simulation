@@ -3,14 +3,6 @@
 #include "SimpleMath.h"
 using namespace DirectX::SimpleMath;
 
-class Rotor3f 
-{
-public:
-	Rotor3f();
-	~Rotor3f();
-};
-
-
 struct Bivector3
 {
 	float b01 = 0;
@@ -29,21 +21,21 @@ struct Rotor3
 	float b12 = 0;
 
 	// default ctor
-	Rotor3() {}
-	Rotor3(float a, float b01, float b02, float b12);
+	Rotor3::Rotor3() {}
+	Rotor3::Rotor3(float a, float b01, float b02, float b12);
 
 	// construct the rotor that rotates one vector to another
-	Rotor3(const Vector3& vFrom, const Vector3& vTo);
+	Rotor3::Rotor3(const Vector3& vFrom, const Vector3& vTo);
 	// angle+axis, or rather angle+plane
-	Rotor3(float angleRadian, const Bivector3& bvPlane);
+	Rotor3::Rotor3(float angleRadian, const Bivector3& bvPlane);
 
 	// rotate a vector by the rotor
-	Vector3 rotate(const Vector3& v) const;
+	Vector3 rotate(const Vector3& x) const;
+	Rotor3 rotate(const Rotor3 r) const;
 
 	// multiply
-	Rotor3 operator*(const Rotor3& r) const;
+	Rotor3 operator*(const Rotor3& q) const;
 	Rotor3 operator*=(const Rotor3& r);
-	Rotor3 rotate(const Rotor3& r) const;
 
 	// length utility
 	Rotor3 reverse() const; // equivalent to conjugate
@@ -51,7 +43,6 @@ struct Rotor3
 	float length() const;
 	void normalize();
 	Rotor3 normal() const;
+	Matrix toMatrix3() const;
 
-	// convert to matrix
-	//Matrix3 toMatrix3() const; // TODO: we need this
 };
