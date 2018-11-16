@@ -3,14 +3,7 @@
 #include "TextureLoader.h"
 
 
-Cylinder::Cylinder(void) :Shape(), m_radius(5), m_height(2)
-{
-	//m_objectID = countID;
-	//++countID;
-	//m_texture = TextureLoader::LoadBMP("checker.bmp");
-}
-
-
+Cylinder::Cylinder(void) :Shape(), m_radius(5), m_height(2){}
 Cylinder::~Cylinder()
 = default;
 
@@ -24,32 +17,10 @@ void Cylinder::SetHeight(const float p_height)
 	m_height = p_height;
 }
 
-
-//void Cylinder::SetName(std::string name)
-//{
-//	m_name = name;
-//}
-//
-//void Cylinder::SetPos(float x, float y, float z)
-//{
-//	m_pos.Set(x, y, z);
-//}
-
-//std::string Cylinder::GetName()const
-//{
-//	return m_name;
-//}
-
 float Cylinder::GetRadius() const
 {
 	return m_radius;
 }
-
-
-//Vector3f Cylinder::GetPos() const
-//{
-//	return m_pos;
-//}
 
 float Cylinder::GetHeight() const
 {
@@ -59,8 +30,7 @@ float Cylinder::GetHeight() const
 void Cylinder::Render() const
 {
 	glPushMatrix();
-	glTranslatef(GetPos().GetX(), GetPos().GetY(), 0);
-	//glRotatef(90, 1, 0, 0);
+	glTranslatef(GetPos().x, GetPos().y, GetPos().z);
 	glColor3d(1, 0, 1); // Here to change Color
 	glBindTexture(GL_TEXTURE_2D, GetTexture());               // Select Our Texture
 	GLUquadric *quadric = gluNewQuadric();

@@ -4,6 +4,7 @@
 #include "Sphere.h"
 #include "ContactManifold.h"
 #include <list>
+#include "PotentialContactManifold.h"
 
 class Game
 {
@@ -12,22 +13,23 @@ public:
 	~Game(void);
 
 	void Update();
-
-private:
+	void KeyboardResponse(const char key);
 	void SimulationLoop();
 	void CalculateObjectPhysics();
 	void DynamicCollisionDetection();
 	void DynamicCollisionResponse();
 	void UpdateObjectPhysics();
 	void Render();
-	void drawStrokeText(char*string, int x, int y, int z);
 
-private:
 	HDC   m_hdc;
 	float m_dt;
 	int	  m_fps;
 	float m_previousTime;
 	std::list<Shape*> ListOfShapes;
+	
+	//Experimental TODO: Remove if not working
+	std::list<Node*> ListOfNodes;
+	
 	Sphere *m_sphere1;
 	Sphere *m_sphere2;
 	Sphere *m_sphere3;

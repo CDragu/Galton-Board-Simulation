@@ -11,12 +11,12 @@ Bivector3::Bivector3(float b01, float b02, float b12)
 	: b01(b01), b02(b02), b12(b12) {}
 
 // Wedge product
-inline Bivector3 Wedge(const Vector3f& u, const Vector3f& v)
+inline Bivector3 Wedge(const Vector3& u, const Vector3& v)
 {
 	Bivector3 ret(
-		u.GetX() * v.GetY() - u.GetY() * v.GetX(), // XY
-		u.GetX() * v.GetZ() - u.GetZ() * v.GetX(), // XZ
-		u.GetY() * v.GetZ() - u.GetZ() * v.GetY()  // YZ
+		u.x * v.y - u.y * v.x, // XY
+		u.x * v.z - u.z * v.x, // XZ
+		u.y * v.z - u.z * v.y  // YZ
 	);
 	return ret;
 }
@@ -27,9 +27,9 @@ Rotor3::Rotor3(float a, float b01, float b02, float b12)
 
 // construct the rotor that rotates one vector to another
 // uses the usual trick to get the half angle
-Rotor3::Rotor3(const Vector3f& vFrom, const Vector3f& vTo)
+Rotor3::Rotor3(const Vector3& vFrom, const Vector3& vTo)
 {
-	a = 1 + vTo.dot(vFrom);
+	a = 1 + vTo.Dot(vFrom);
 	// the left side of the products have b a, not a b, so flip
 	Bivector3 minusb = Wedge(vTo, vFrom);
 	b01 = minusb.b01;
@@ -77,26 +77,26 @@ inline Rotor3 Rotor3::operator*(const Rotor3& q) const
 
 /// R x R*
 // non-optimized
-Vector3f Rotor3::rotate(const Vector3f& x) const
+Vector3 Rotor3::rotate(const Vector3& x) const
 {
 	const Rotor3& p = *this;
 
 	// q = P x
 	
-	auto m_x = p.a * x.GetX() + x.GetY() * p.b01 + x.GetZ() * p.b02;
-	auto m_y = p.a * x.GetY() - x.GetX() * p.b01 + x.GetZ() * p.b12;
-	auto m_z = p.a * x.GetZ() - x.GetX() * p.b02 - x.GetY() * p.b12;
-	Vector3f q(m_x, m_y, m_z);
+	auto m_x = p.a * x.x + x.y * p.b01 + x.z * p.b02;
+	auto m_y = p.a * x.y - x.x * p.b01 + x.z * p.b12;
+	auto m_z = p.a * x.z - x.x * p.b02 - x.y * p.b12;
+	Vector3 q(m_x, m_y, m_z);
 
-	const float q012 = -x.GetX() * p.b12 + x.GetY() * p.b02 - x.GetZ() * p.b01; // trivector
+	const float q012 = -x.x * p.b12 + x.y * p.b02 - x.z * p.b01; // trivector
 
 	// r = q P*
 	
-	auto r_x = p.a * q.GetX() + q.GetY() * p.b01 + q.GetZ() * p.b02 - q012 * p.b12;
-	auto r_y = p.a * q.GetY() - q.GetX() * p.b01 + q012 * p.b02 + q.GetZ() * p.b12;
-	auto r_z = p.a * q.GetZ() - q012 * p.b01 - q.GetX() * p.b02 - q.GetY() * p.b12;
+	auto r_x = p.a * q.x + q.y * p.b01 + q.z * p.b02 - q012 * p.b12;
+	auto r_y = p.a * q.y - q.x * p.b01 + q012 * p.b02 + q.z * p.b12;
+	auto r_z = p.a * q.z - q012 * p.b01 - q.x * p.b02 - q.y * p.b12;
 	
-	return Vector3f(r_x, r_y, r_z);
+	return Vector3(r_x, r_y, r_z);
 }
 
 // Rotor3-Rotor3 product
@@ -154,7 +154,7 @@ inline Rotor3 Rotor3::normal() const
 //}
 
 // geometric product (for reference), produces twice the angle, negative direction
-inline Rotor3 Geo(const Vector3f & a, const Vector3f & b)
+inline Rotor3 Geo(const Vector3 & a, const Vector3 & b)
 {
-	return Rotor3(a.dot(b), Wedge(a, b));
+	return Rotor3(a.Dot(b), Wedge(a, b));
 }

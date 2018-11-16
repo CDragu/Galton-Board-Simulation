@@ -19,6 +19,7 @@ public:
 	float dot(const Vector3f &vec) const;
 	Vector3f cross(const Vector3f &vec) const;
 	float length() const;
+	float sqrMagnitude() const;
 	float distance(const Vector3f &vec) const;
 	Vector3f normalise();
 
@@ -26,7 +27,6 @@ public:
 
 	//float SquareDistancePointSolidBox(Cube c, Vector3f v);
 
-private:
 	float m_x, m_y, m_z;
 };
 
@@ -34,6 +34,6 @@ Vector3f operator+ (const Vector3f &lhs, const Vector3f &rhs);
 Vector3f operator+= (const Vector3f &lhs, const Vector3f &rhs);
 Vector3f operator- (const Vector3f &lhs, const Vector3f &rhs);
 Vector3f operator* (const Vector3f &lhs, float n);
-Vector3f operator* (float n, const Vector3f &lhs);
+Vector3f operator* (float n, const Vector3f &rhs);
 Vector3f operator/ (const Vector3f &lhs, float n);
 

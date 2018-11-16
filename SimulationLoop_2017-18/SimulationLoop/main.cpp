@@ -50,9 +50,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd,
 				PostMessage(hwnd, WM_CLOSE, 0, 0);
 				return (0);
 			default:
-				char message[15];
+				game->KeyboardResponse((char)wparam);
+				/*char message[15];
 				sprintf_s(message, "Key Pressed: %c", (char)wparam);
-				MessageBox(NULL, message, "Key Pressed", MB_OK);
+				MessageBox(NULL, message, "Key Pressed", MB_OK);*/
 			}
 			break;
 		}

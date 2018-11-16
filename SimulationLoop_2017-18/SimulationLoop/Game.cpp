@@ -8,25 +8,29 @@
 #include "Cylinder.h"
 
 
+
 Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 {
-	for (size_t i = 0; i < 1; i++)
+	for (size_t i = 0; i < 200; i++)
 	{
 		Sphere* m_sphere = new Sphere();
 		m_sphere->SetPos(0.2, 30 * (i+1), 0.3);
-		m_sphere->SetRadius(0.2f);
+		m_sphere->SetRadius(1.0f);
 		m_sphere->SetVel(0, -5, 0);
 		m_sphere->SetMass(750.0f);
 		m_sphere->SetVel(0, 0, 0);
-		m_sphere->SetNewVel(Vector3f(0.0f, 0.0f, 0.0f));
+		m_sphere->SetNewVel(Vector3(0.0f, 0.0f, 0.0f));
 		m_sphere->SetRot(0, 0, 0);
 		m_sphere->SetName("Sphere");
 		ListOfShapes.push_back(m_sphere);
+		//Experimental TODO: Remove if not working
+		Node* node = new Node(nullptr, BoundingSphere(m_sphere->GetPos(), m_sphere->GetRadius()), m_sphere);
+		ListOfNodes.push_back(node);
 	}
 
 	
 	Cube* m_cube = new Cube();
-	m_cube->SetPos(1.2, -30, 3.4);
+	m_cube->SetPos(0, -30, 30);
 	m_cube->SetName("Cube");
 	m_cube->SetSize(1);
 	m_cube->SetHeight(3);
@@ -76,11 +80,6 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 
 Game::~Game(void)
 {
-	/*for (auto& sphere : ListOfShapes)
-	{
-		delete &sphere;
-	}*/
-
 	ListOfShapes.clear();
 
 	delete m_manifold;
@@ -112,7 +111,7 @@ void Game::SimulationLoop()
 	m_manifold->Clear();
 
 	// Find dynamic collisions for all objects and add to contact manifold 
-	DynamicCollisionDetection();
+	//DynamicCollisionDetection();
 
 	// Handle dynamic collision responses using the contact manifold
 	DynamicCollisionResponse();
@@ -129,7 +128,7 @@ void Game::CalculateObjectPhysics()
 	{
 		if(shape->GetName() == "Sphere")
 		{
-			dynamic_cast<Sphere*>(shape)->CalculatePhysics(m_dt);
+			dynamic_cast<Sphere*>(shape)->CalculatePhysics(0.016f);
 		}
 		
 	}
@@ -156,23 +155,6 @@ void Game::DynamicCollisionDetection()
 			}
 		}
 	}
-	//{
-	//	for (int j = i+1; j < ListOfShapes.size(); j++)
-	//	{
-	//		/*Shape* it1 = *std::next(ListOfShapes.begin(), i);
-	//		Shape* it2 = *std::next(ListOfShapes.begin(), j);*/
-
-	//		if (ListOfShapes[i]->GetName() == "Sphere" && it2->GetName() == "Sphere")
-	//		{
-	//			dynamic_cast<Sphere*>(it1)->CollisionWithSphere(dynamic_cast<Sphere*>(it2), m_manifold);
-	//		}
-
-	//		if(it1->GetName() == "Sphere" && it2->GetName() == "Cube")
-	//		{
-	//			dynamic_cast<Sphere*>(it1)->CollisionWithCube(dynamic_cast<Cube*>(it2), m_manifold);
-	//		}
-	//	}
-	//}
 }
 
 //**************************Handle dynamic collision responses***********************
@@ -214,8 +196,6 @@ void Game::Render()									// Here's Where We Do All The Drawing
 	glLoadIdentity();									// Reset The Current Modelview Matrix
 	gluLookAt(0, 0, 200, 0, 0, 0, 0, 1, 0);
 
-	printf("HELLO!!! I AM THE CONSOLE!");
-
 	glDisable(GL_TEXTURE_2D);
 
 	glEnable(GL_TEXTURE_2D);
@@ -225,6 +205,16 @@ void Game::Render()									// Here's Where We Do All The Drawing
 	}
 
 	SwapBuffers(m_hdc);				// Swap Buffers (Double Buffering)
+}
+
+void Game::KeyboardResponse(const char key)
+{
+	std::cout << key << std::endl;
+
+	if(key == 'U')
+	{
+		SimulationLoop();
+	}
 }
 
 

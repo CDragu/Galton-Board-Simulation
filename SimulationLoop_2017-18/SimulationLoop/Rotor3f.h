@@ -1,5 +1,7 @@
 #pragma once
-#include "Vector3f.h"
+#include "d3d11.h"
+#include "SimpleMath.h"
+using namespace DirectX::SimpleMath;
 
 class Rotor3f 
 {
@@ -31,12 +33,12 @@ struct Rotor3
 	Rotor3(float a, float b01, float b02, float b12);
 
 	// construct the rotor that rotates one vector to another
-	Rotor3(const Vector3f& vFrom, const Vector3f& vTo);
+	Rotor3(const Vector3& vFrom, const Vector3& vTo);
 	// angle+axis, or rather angle+plane
 	Rotor3(float angleRadian, const Bivector3& bvPlane);
 
 	// rotate a vector by the rotor
-	Vector3f rotate(const Vector3f& v) const;
+	Vector3 rotate(const Vector3& v) const;
 
 	// multiply
 	Rotor3 operator*(const Rotor3& r) const;
@@ -51,5 +53,5 @@ struct Rotor3
 	Rotor3 normal() const;
 
 	// convert to matrix
-	//Matrix3 toMatrix3() const; // maybe we don't need
+	//Matrix3 toMatrix3() const; // TODO: we need this
 };

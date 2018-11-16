@@ -72,9 +72,14 @@ Vector3f Vector3f::cross(const Vector3f& vec) const
 	return Vector3f(x, y, z);
 }
 
-float Vector3f::length() const
+float Vector3f::length() const 
 {
 	return sqrt(m_x*m_x + m_y * m_y + m_z*m_z);
+}
+
+float Vector3f::sqrMagnitude() const
+{
+	return m_x * m_x + m_y * m_y + m_z * m_z;
 }
 
 float Vector3f::distance(const Vector3f& vec) const
