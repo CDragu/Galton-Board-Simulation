@@ -30,6 +30,7 @@ public:
 	virtual void Render() const;
 
 	std::string m_name;
+	int GeometricType; //Sphere = 0, Cube = 1 
 	Vector3 m_pos;
 	Vector3 m_rot;//in Euler angles TODO: is in radians now
 	Vector3 m_scale;

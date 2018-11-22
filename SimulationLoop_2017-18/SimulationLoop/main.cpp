@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <Windows.h>
 #include "Game.h"
+#include "AntTweakBar.h"
 
 const char TITLE[] = "Window 2 Creation";
 
@@ -212,6 +213,12 @@ int WINAPI WinMain( HINSTANCE hinstance,
 		return(0);
 
 	InitializeOpenGL(hwnd, 600, 600);
+
+	TwInit(TW_OPENGL, NULL);
+	RECT r;
+	GetClientRect(hwnd, &r);
+	TwWindowSize(r.right - r.left, r.bottom - r.top);
+	TwDefine(" GLOBAL overlap=true ");
 
 	game = new Game(hDC);
 

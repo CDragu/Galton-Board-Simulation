@@ -5,6 +5,8 @@
 #include "ContactManifold.h"
 #include <list>
 #include "PotentialContactManifold.h"
+#include <AntTweakBar.h>
+#include <vector>
 
 class Game
 {
@@ -19,19 +21,24 @@ public:
 	void DynamicCollisionDetection();
 	void DynamicCollisionResponse();
 	void UpdateObjectPhysics();
+	void CorrectObjectSinking();
 	void Render();
 
+	TwBar* Bar;
 	HDC   m_hdc;
 	float m_dt;
 	int	  m_fps;
 	float m_previousTime;
-	std::list<Shape*> ListOfShapes;
+	std::vector<Shape*> ListOfShapes;
 	
 	//Experimental TODO: Remove if not working
-	std::list<Node*> ListOfNodes;
+	std::vector<Node*> ListOfNodes;
 	
 	Vector3 eye;
 	ContactManifold *m_manifold;
 	LARGE_INTEGER start, end, frequency;
+
+	int ImpulseIteration;
+	float TotalForce;
 };
 

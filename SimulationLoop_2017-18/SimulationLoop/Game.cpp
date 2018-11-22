@@ -6,28 +6,38 @@
 #include <ctime>
 #include "Cube.h"
 #include "Cylinder.h"
-
-
+#include <AntTweakBar.h>
 
 Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 {
+	Bar = TwNewBar("Bar");
+	TwDefine(("Bar  position='0 0' "));
+	TwDefine(("Bar  size='100 50' "));
+	TwDefine("Bar refresh=0.1 ");
+	TwAddVarRW(Bar, "FPS", TW_TYPE_INT32, &m_fps, "");
+	TwAddVarRW(Bar, "Velocity Sum: ", TW_TYPE_FLOAT, &TotalForce, "");
+
+	ImpulseIteration = 1; // how many times we do the physics calculation for collision response
 	eye = Vector3(0, 0, 200);
-	
-	for (size_t i = 0; i < 1; i++)
+	/*Node* ParentNode = new Node(nullptr, BoundingSphere(Vector3(0, 0, 0), 1.0f), nullptr);
+	ListOfNodes.push_back(ParentNode);*/
+	for (size_t i = 0; i < 50; i++)
 	{
 		Sphere* m_sphere = new Sphere();
 		m_sphere->SetPos(0.2, 30 * (i+1), 0.3);
 		m_sphere->SetRadius(3.0f);
 		m_sphere->SetVel(0, -5, 0);
 		m_sphere->SetMass(750.0f);
-		m_sphere->SetVel(0, 0, 0);
-		m_sphere->SetNewVel(Vector3(0.0f, 0.0f, 0.0f));
+		m_sphere->SetVel(0,-30, 0);
+		m_sphere->SetNewVel(Vector3(0.0f,0.0f, 0.0f));
 		m_sphere->SetRot(0, 3.14f / 4.0f, 0); //TODO: this is rendered in euler but matrix has to be in radian
 		m_sphere->SetName("Sphere");
+		m_sphere->GeometricType = 0;
 		ListOfShapes.push_back(m_sphere);
 		//Experimental TODO: Remove if not working
-		Node* node = new Node(nullptr, BoundingSphere(m_sphere->GetPos(), m_sphere->GetRadius()), m_sphere);
-		ListOfNodes.push_back(node);
+		//ParentNode->Insert(m_sphere, BoundingSphere(m_sphere->GetPos(), m_sphere->GetRadius()));
+		//Node* node = new Node(ParentNode, , m_sphere);
+		//ListOfNodes.push_back(node);
 	}
 
 	
@@ -41,10 +51,10 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 	//m_cube->SetRot(0, 0, 0.383f);
 	m_cube->SetWidth(50);
 	m_cube->CreateTransformMatrix();
-	
+	m_cube->GeometricType = 1;
 	ListOfShapes.push_back(m_cube);
 
-	/*Cube* m_cube3 = new Cube();
+	Cube* m_cube3 = new Cube();
 	m_cube3->SetPos(-10, 0, 0);
 	m_cube3->SetName("Cube");
 	m_cube3->SetSize(1);
@@ -52,21 +62,21 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 	m_cube3->SetLength(50);
 	m_cube3->SetRot(-3.14f / 4.0f, 0, 0);
 	m_cube3->SetWidth(50);
-
-	ListOfShapes.push_back(m_cube3);*/
+	m_cube3->GeometricType = 1;
+	ListOfShapes.push_back(m_cube3);
 
 
 	//Construct Floor;
-	//Cube* m_cube2 = new Cube();
-	//m_cube2->SetPos(0.2f, -40.0f, 0.3f);
-	//m_cube2->SetName("Cube");
-	//m_cube2->SetSize(1);
-	//m_cube2->SetHeight(3);
-	//m_cube2->SetLength(100);
-	//m_cube2->SetRot(0, 0, 0);
-	//m_cube2->SetWidth(100);
-
-	//ListOfShapes.push_back(m_cube2);
+	Cube* m_cube2 = new Cube();
+	m_cube2->SetPos(0.2f, -40.0f, 0.3f);
+	m_cube2->SetName("Cube");
+	m_cube2->SetSize(1);
+	m_cube2->SetHeight(3);
+	m_cube2->SetLength(100);
+	m_cube2->SetRot(0,0 , -3.14f / 4.0f);
+	m_cube2->SetWidth(100);
+	m_cube2->GeometricType = 1;
+	ListOfShapes.push_back(m_cube2);
 
 	Cylinder* m_cylinder = new Cylinder();
 	m_cylinder->SetPos(20, 10, 0);
@@ -94,7 +104,7 @@ void Game::Update()
 	// **************************************************
 	// The simulation loop should be on its own thread(s)
 	// **************************************************
-	//SimulationLoop();
+	SimulationLoop();
 	
 	Render();
 }
@@ -107,7 +117,7 @@ void Game::SimulationLoop()
 	start = end;
 
 	m_fps = static_cast<int>(1.0 / m_dt);
-
+	
 	// Calculate the physic calculations on all objects (e.g. new position, velocity, etc)
 	CalculateObjectPhysics();
 
@@ -122,6 +132,9 @@ void Game::SimulationLoop()
 
 	// Update the physics calculations on all objects (e.g. new position, velocity, etc)
 	UpdateObjectPhysics();
+
+	//Last step of physics simulation where we unstuck the objects that penetrated
+	//CorrectObjectSinking();
 }
 
 
@@ -141,54 +154,132 @@ void Game::CalculateObjectPhysics()
 //**************************Handle dynamic collisions***********************
 void Game::DynamicCollisionDetection()
 {
-
-	std::list<Shape*>::iterator it1;
-	for (it1 = ListOfShapes.begin(); it1 != ListOfShapes.end(); it1++)
+	//TODO: remove if node ended up not working
+	/*for (int i = 0; i < ListOfNodes.size(); i++)
 	{
-		auto it2 = it1;
-		for(++it2; it2 != ListOfShapes.end(); it2++)
+		PotentialContact* c = new PotentialContact();
+		if((*ListOfNodes[i]).getPotentialContacts(c, 1000) == 0)
 		{
-			if ((*it1)->GetName() == "Sphere" && (*it2)->GetName() == "Sphere")
+			continue;
+		}
+		if(c->body[0]->GeometricType == 0 && c->body[1]->GeometricType == 0)
+		{
+			dynamic_cast<Sphere*>(c->body[0])->CollisionWithSphere(dynamic_cast<Sphere*>(c->body[1]), m_manifold);
+		}
+
+		if (c->body[0]->GeometricType == 0 && c->body[1]->GeometricType == 1)
+		{
+			dynamic_cast<Sphere*>(c->body[0])->CollisionWithCubeWithAxisSeparation(dynamic_cast<Cube*>(c->body[1]), m_manifold);
+		}
+	}*/
+
+	for(int i = 0; i <ListOfShapes.size(); i++)
+	{
+		for(int j = i+1; j < ListOfShapes.size(); j++)
+		{
+			if ((*ListOfShapes[i]).GeometricType == 0 && (*ListOfShapes[j]).GeometricType == 0)
 			{
-				dynamic_cast<Sphere*>(*it1)->CollisionWithSphere(dynamic_cast<Sphere*>(*it2), m_manifold);
+				dynamic_cast<Sphere*>(ListOfShapes[i])->CollisionWithSphere(dynamic_cast<Sphere*>(ListOfShapes[j]), m_manifold);
 			}
 
-			if ((*it1)->GetName() == "Sphere" && (*it2)->GetName() == "Cube")
+			if ((*ListOfShapes[i]).GeometricType == 0 && (*ListOfShapes[j]).GeometricType == 1)
 			{
-				dynamic_cast<Sphere*>(*it1)->CollisionWithCubeWithAxisSeparation(dynamic_cast<Cube*>(*it2), m_manifold);
+				dynamic_cast<Sphere*>(ListOfShapes[i])->CollisionWithCubeWithAxisSeparation(dynamic_cast<Cube*>(ListOfShapes[j]), m_manifold);
 			}
 		}
 	}
+
+
+	//std::list<Shape*>::iterator it1;
+	//for (it1 = ListOfShapes.begin(); it1 != ListOfShapes.end(); it1++)
+	//{
+	//	auto it2 = it1;
+	//	for(++it2; it2 != ListOfShapes.end(); it2++)
+	//	{
+	//		if (true)//((*it1)->GetName() == "Sphere" && (*it2)->GetName() == "Sphere")
+	//		{
+	//			//dynamic_cast<Sphere*>(*it1)->CollisionWithSphere(dynamic_cast<Sphere*>(*it2), m_manifold);
+	//		}
+
+	//		if (false)//((*it1)->GetName() == "Sphere" && (*it2)->GetName() == "Cube")
+	//		{
+	//			//dynamic_cast<Sphere*>(*it1)->CollisionWithCubeWithAxisSeparation(dynamic_cast<Cube*>(*it2), m_manifold);
+	//		}
+	//	}
+	//}
 }
 
 //**************************Handle dynamic collision responses***********************
 void Game::DynamicCollisionResponse()
 {
-	for(int collision = 0; collision < m_manifold->GetNumPoints(); ++collision)
-	{
-		ManifoldPoint &point = m_manifold->GetPoint(collision);
-
-		if(point.contactID1->GetName() == "Sphere" && point.contactID2->GetName() == "Sphere")
+	for(int k = 0; k < ImpulseIteration; k++)
+		for(int collision = 0; collision < m_manifold->GetNumPoints(); ++collision)
 		{
-			dynamic_cast<Sphere*>(point.contactID1)->CollisionResponseWithSphere(*dynamic_cast<Sphere*>(point.contactID1), *dynamic_cast<Sphere*>(point.contactID2), point.contactNormal);
-		}
+			ManifoldPoint &point = m_manifold->GetPoint(collision);
 
-		if (point.contactID1->GetName() == "Sphere" && point.contactID2->GetName() == "Cube")
-		{
-			dynamic_cast<Sphere*>(point.contactID1)->CollisionResponseWithCube(*dynamic_cast<Sphere*>(point.contactID1), *dynamic_cast<Cube*>(point.contactID2), point.contactNormal);
+			if(point.contactID1->GetName() == "Sphere" && point.contactID2->GetName() == "Sphere")
+			{
+				dynamic_cast<Sphere*>(point.contactID1)->CollisionResponseWithSphere(*dynamic_cast<Sphere*>(point.contactID1), *dynamic_cast<Sphere*>(point.contactID2), point.contactNormal);
+				dynamic_cast<Sphere*>(point.contactID1)->Update();
+				dynamic_cast<Sphere*>(point.contactID2)->Update();
+			}
+
+			if (point.contactID1->GetName() == "Sphere" && point.contactID2->GetName() == "Cube")
+			{
+				dynamic_cast<Sphere*>(point.contactID1)->CollisionResponseWithCube(*dynamic_cast<Sphere*>(point.contactID1), *dynamic_cast<Cube*>(point.contactID2), point.contactNormal);
+				dynamic_cast<Sphere*>(point.contactID1)->Update();
+			}
+			
 		}
-		
-	}
 }
 
 //**************************Update the physics calculations on each object***********************
 void Game::UpdateObjectPhysics()
 {
+	TotalForce = 0;
 	for (auto& shape : ListOfShapes)
 	{
 		if (shape->GetName() == "Sphere")
 		{
-			dynamic_cast<Sphere*>(shape)->Update();
+			Sphere* s = dynamic_cast<Sphere*>(shape);
+			s->Update();
+			TotalForce += s->m_newVelocity.LengthSquared();
+		}
+	}
+}
+
+void Game::CorrectObjectSinking()
+{
+	for (int collision = 0; collision < m_manifold->GetNumPoints(); ++collision)
+	{
+		ManifoldPoint &point = m_manifold->GetPoint(collision);
+
+		float depth = fmax(point.penetration - 0.02, 0.0f);
+		if(point.contactID1->GeometricType == 0 && point.contactID2->GeometricType == 0)
+		{
+			float m1 = dynamic_cast<Sphere*>(point.contactID1)->InvertMass();
+			float m2 = dynamic_cast<Sphere*>(point.contactID2)->InvertMass();
+			float scalar = depth / (m1 + m2);
+
+			Vector3 correction = point.contactNormal * scalar * 0.2f;//TODO:Linear projection percent, make visible variable
+
+			Vector3 CorrectionSphere1 = point.contactID1->GetPos() - correction * m1;
+			point.contactID1->SetPos(CorrectionSphere1.x , CorrectionSphere1.y, CorrectionSphere1.z);
+			
+			Vector3 CorrectionSphere2 = point.contactID2->GetPos() - correction * m2;
+			point.contactID2->SetPos(CorrectionSphere2.x, CorrectionSphere2.y, CorrectionSphere2.z);
+		}
+
+		if(point.contactID1->GeometricType == 0 && point.contactID2->GeometricType == 1)
+		{
+			float m1 = dynamic_cast<Sphere*>(point.contactID1)->InvertMass();
+			float scalar = depth / (m1);
+
+			Vector3 correction = point.contactNormal * scalar * 0.2f;//TODO:Linear projection percent, make visible variable
+
+			Vector3 CorrectionSphere1 = point.contactID1->GetPos() + correction * m1;
+			point.contactID1->SetPos(CorrectionSphere1.x, CorrectionSphere1.y, CorrectionSphere1.z);
+
 		}
 	}
 }
@@ -208,7 +299,14 @@ void Game::Render()									// Here's Where We Do All The Drawing
 		shape->Render();
 	}
 
+	if(TwDraw() == 0)
+	{
+		std::cout << TwGetLastError();
+	}
+
 	SwapBuffers(m_hdc);				// Swap Buffers (Double Buffering)
+
+	
 }
 
 void Game::KeyboardResponse(const char key)

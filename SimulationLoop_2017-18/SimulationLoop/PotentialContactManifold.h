@@ -38,7 +38,7 @@ public:
 
 	bool isLeaf() const
 	{
-		return (body != nullptr);
+		return !(body != nullptr);
 	}
 
 	int getPotentialContacts(PotentialContact* contacts, int limit) const;
