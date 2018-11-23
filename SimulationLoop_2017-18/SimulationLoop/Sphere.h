@@ -27,10 +27,12 @@ public:
 	
 	void Update();
 	
-	void CollisionResponseWithSphere(Sphere &one, Sphere &two, Vector3 colNormal);
-	void CollisionResponseWithCube(Sphere &one, Cube &two, Vector3 colNormal);
+	void CollisionResponseWithSphere(Sphere &one, Sphere &two, Vector3 colNormal, Vector3 colPoint);
+	void CollisionResponseWithCubeNoAngular(Sphere& one, Cube& two, Vector3 colNormal, Vector3 colPoint);
+	void CollisionResponseWithCube(Sphere &one, Cube &two, Vector3 colNormal, Vector3 colPoint);
 
 	float InvertMass();
+	void DefineInvTensor();
 
 	void SetVel(float x, float y, float z);
 	void SetNewPos(Vector3 pos);
@@ -52,11 +54,18 @@ public:
 	float m_radius;
 
 	float m_friction;
-	float m_elasticity; //how much bounce;
-	float m_restitution; //coefficient of restitution
+	float m_restitution; //coefficient of restitution, inverse of elasticity, how much energy remains after one collision
+
+	Vector3 m_angularVelocity;
+	Vector3 m_newAngularVelocity;
+	Vector3 m_torque;
+	Matrix m_InvTensor;
 
 	Vector3 m_newPos;
+	Vector3 m_newRot;
 	Vector3 m_velocity;
 	Vector3 m_newVelocity;
+	
+	
 	TwBar* BarObj;
 };

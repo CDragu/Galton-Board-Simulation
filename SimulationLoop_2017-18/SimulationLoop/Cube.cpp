@@ -2,13 +2,46 @@
 #include "Rotor3f.h"
 
 
-Cube::Cube(void) :Shape(), m_size(1), m_width(1), m_height(1), m_length(1)
+Cube::Cube(void) :Shape(), m_size(1), m_width(1), m_height(1), m_length(1), m_mass(1), m_friction(0.6f), m_restitution(0.5f)
 {
 	CalculatePoints();
+	DefineInvTensor();
 }
 
 Cube::~Cube()
 = default;
+
+float Cube::InvertMass()
+{
+	if (m_mass == 0.0f)
+	{
+		return 0.0f;
+	}
+	else
+	{
+		return 1.0f / m_mass;
+	}
+}
+
+void Cube::DefineInvTensor()
+{
+	float x, y, z, w = 1;
+
+	float lenght = m_length / 2.0f * m_length / 2.0f;
+	float height = m_height / 2.0f * m_height / 2.0f;
+	float width =	m_width / 2.0f *  m_width / 2.0f;
+
+	x = (height + width) * m_mass * (1.0f / 12.0f);
+	y = (lenght + width) * m_mass * (1.0f / 12.0f);
+	z = (lenght + height) * m_mass *(1.0f / 12.0f);
+
+	m_InvTensor = Matrix(
+		x, 0, 0, 0,
+		0, y, 0, 0,
+		0, 0, z, 0,
+		0, 0, 0, w).Invert();
+
+}
 
 void Cube::SetPoints(const Vector3 p_points[8])
 {

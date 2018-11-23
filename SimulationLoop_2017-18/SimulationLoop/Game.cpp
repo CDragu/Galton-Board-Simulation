@@ -17,22 +17,24 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 	TwAddVarRW(Bar, "FPS", TW_TYPE_INT32, &m_fps, "");
 	TwAddVarRW(Bar, "Velocity Sum: ", TW_TYPE_FLOAT, &TotalForce, "");
 
-	ImpulseIteration = 1; // how many times we do the physics calculation for collision response
+	ImpulseIteration = 6; // how many times we do the physics calculation for collision response
 	eye = Vector3(0, 0, 200);
 	/*Node* ParentNode = new Node(nullptr, BoundingSphere(Vector3(0, 0, 0), 1.0f), nullptr);
 	ListOfNodes.push_back(ParentNode);*/
-	for (size_t i = 0; i < 50; i++)
+	for (size_t i = 0; i < 1; i++)
 	{
 		Sphere* m_sphere = new Sphere();
-		m_sphere->SetPos(0.2, 30 * (i+1), 0.3);
+		m_sphere->SetPos(0.2, 50 * (i+1), 0.3);
 		m_sphere->SetRadius(3.0f);
 		m_sphere->SetVel(0, -5, 0);
 		m_sphere->SetMass(750.0f);
-		m_sphere->SetVel(0,-30, 0);
+		m_sphere->SetVel(0, -30, 0);
 		m_sphere->SetNewVel(Vector3(0.0f,0.0f, 0.0f));
 		m_sphere->SetRot(0, 3.14f / 4.0f, 0); //TODO: this is rendered in euler but matrix has to be in radian
 		m_sphere->SetName("Sphere");
 		m_sphere->GeometricType = 0;
+		//m_sphere->m_angularVelocity = Vector3(90, 0, 0);
+		m_sphere->DefineInvTensor();
 		ListOfShapes.push_back(m_sphere);
 		//Experimental TODO: Remove if not working
 		//ParentNode->Insert(m_sphere, BoundingSphere(m_sphere->GetPos(), m_sphere->GetRadius()));
@@ -40,30 +42,30 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 		//ListOfNodes.push_back(node);
 	}
 
-	
-	Cube* m_cube = new Cube();
-	m_cube->SetPos(0, -30, 0.3);
-	m_cube->SetName("Cube");
-	m_cube->SetSize(1);
-	m_cube->SetHeight(3);
-	m_cube->SetLength(100); 
-	m_cube->SetRot(3.14f/4.0f, -3.14f / 4.0f, 3.14f / 4.0f);
-	//m_cube->SetRot(0, 0, 0.383f);
-	m_cube->SetWidth(50);
-	m_cube->CreateTransformMatrix();
-	m_cube->GeometricType = 1;
-	ListOfShapes.push_back(m_cube);
+	//
+	//Cube* m_cube = new Cube();
+	//m_cube->SetPos(0, -30, 0.3);
+	//m_cube->SetName("Cube");
+	//m_cube->SetSize(1);
+	//m_cube->SetHeight(3);
+	//m_cube->SetLength(100); 
+	//m_cube->SetRot(3.14f/4.0f, -3.14f / 4.0f, 3.14f / 4.0f);
+	////m_cube->SetRot(0, 0, 0.383f);
+	//m_cube->SetWidth(50);
+	//m_cube->CreateTransformMatrix();
+	//m_cube->GeometricType = 1;
+	//ListOfShapes.push_back(m_cube);
 
-	Cube* m_cube3 = new Cube();
-	m_cube3->SetPos(-10, 0, 0);
-	m_cube3->SetName("Cube");
-	m_cube3->SetSize(1);
-	m_cube3->SetHeight(3);
-	m_cube3->SetLength(50);
-	m_cube3->SetRot(-3.14f / 4.0f, 0, 0);
-	m_cube3->SetWidth(50);
-	m_cube3->GeometricType = 1;
-	ListOfShapes.push_back(m_cube3);
+	//Cube* m_cube3 = new Cube();
+	//m_cube3->SetPos(-10, 0, 0);
+	//m_cube3->SetName("Cube");
+	//m_cube3->SetSize(1);
+	//m_cube3->SetHeight(3);
+	//m_cube3->SetLength(50);
+	//m_cube3->SetRot(-3.14f / 4.0f, 0, 0);
+	//m_cube3->SetWidth(50);
+	//m_cube3->GeometricType = 1;
+	//ListOfShapes.push_back(m_cube3);
 
 
 	//Construct Floor;
@@ -71,11 +73,12 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 	m_cube2->SetPos(0.2f, -40.0f, 0.3f);
 	m_cube2->SetName("Cube");
 	m_cube2->SetSize(1);
-	m_cube2->SetHeight(3);
+	m_cube2->SetHeight(6);
 	m_cube2->SetLength(100);
-	m_cube2->SetRot(0,0 , -3.14f / 4.0f);
+	m_cube2->SetRot(0,0 , 0);
 	m_cube2->SetWidth(100);
 	m_cube2->GeometricType = 1;
+	m_cube2->DefineInvTensor();
 	ListOfShapes.push_back(m_cube2);
 
 	Cylinder* m_cylinder = new Cylinder();
@@ -84,6 +87,19 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 	m_cylinder->SetRadius(4.0f);
 	m_cylinder->SetHeight(50.0f);
 	ListOfShapes.push_back(m_cylinder);
+
+	Sphere* m_sphere = new Sphere();
+	m_sphere->SetPos(0.2, 10, 0.3);
+	m_sphere->SetRadius(3.0f);
+	m_sphere->SetMass(750000.0f);
+	m_sphere->SetVel(0, 0, 0);
+	m_sphere->SetNewVel(Vector3(0.0f, 0.0f, 0.0f));
+	m_sphere->SetRot(0, 3.14f / 4.0f, 0); //TODO: this is rendered in euler but matrix has to be in radian
+	m_sphere->SetName("Sphere");
+	m_sphere->GeometricType = 0;
+	//m_sphere->m_angularVelocity = Vector3(90, 0, 0);
+	m_sphere->DefineInvTensor();
+	ListOfShapes.push_back(m_sphere);
 
 
 	m_manifold = new ContactManifold();
@@ -134,7 +150,7 @@ void Game::SimulationLoop()
 	UpdateObjectPhysics();
 
 	//Last step of physics simulation where we unstuck the objects that penetrated
-	//CorrectObjectSinking();
+	CorrectObjectSinking();
 }
 
 
@@ -219,14 +235,14 @@ void Game::DynamicCollisionResponse()
 
 			if(point.contactID1->GetName() == "Sphere" && point.contactID2->GetName() == "Sphere")
 			{
-				dynamic_cast<Sphere*>(point.contactID1)->CollisionResponseWithSphere(*dynamic_cast<Sphere*>(point.contactID1), *dynamic_cast<Sphere*>(point.contactID2), point.contactNormal);
+				dynamic_cast<Sphere*>(point.contactID1)->CollisionResponseWithSphere(*dynamic_cast<Sphere*>(point.contactID1), *dynamic_cast<Sphere*>(point.contactID2), point.contactNormal, point.contactPoint);
 				dynamic_cast<Sphere*>(point.contactID1)->Update();
 				dynamic_cast<Sphere*>(point.contactID2)->Update();
 			}
 
 			if (point.contactID1->GetName() == "Sphere" && point.contactID2->GetName() == "Cube")
 			{
-				dynamic_cast<Sphere*>(point.contactID1)->CollisionResponseWithCube(*dynamic_cast<Sphere*>(point.contactID1), *dynamic_cast<Cube*>(point.contactID2), point.contactNormal);
+				dynamic_cast<Sphere*>(point.contactID1)->CollisionResponseWithCube(*dynamic_cast<Sphere*>(point.contactID1), *dynamic_cast<Cube*>(point.contactID2), point.contactNormal, point.contactPoint);
 				dynamic_cast<Sphere*>(point.contactID1)->Update();
 			}
 			
@@ -261,7 +277,7 @@ void Game::CorrectObjectSinking()
 			float m2 = dynamic_cast<Sphere*>(point.contactID2)->InvertMass();
 			float scalar = depth / (m1 + m2);
 
-			Vector3 correction = point.contactNormal * scalar * 0.2f;//TODO:Linear projection percent, make visible variable
+			Vector3 correction = point.contactNormal * scalar * 0.4f;//TODO:Linear projection percent, make visible variable
 
 			Vector3 CorrectionSphere1 = point.contactID1->GetPos() - correction * m1;
 			point.contactID1->SetPos(CorrectionSphere1.x , CorrectionSphere1.y, CorrectionSphere1.z);
@@ -275,7 +291,7 @@ void Game::CorrectObjectSinking()
 			float m1 = dynamic_cast<Sphere*>(point.contactID1)->InvertMass();
 			float scalar = depth / (m1);
 
-			Vector3 correction = point.contactNormal * scalar * 0.2f;//TODO:Linear projection percent, make visible variable
+			Vector3 correction = point.contactNormal * scalar * 0.4f;//TODO:Linear projection percent, make visible variable
 
 			Vector3 CorrectionSphere1 = point.contactID1->GetPos() + correction * m1;
 			point.contactID1->SetPos(CorrectionSphere1.x, CorrectionSphere1.y, CorrectionSphere1.z);
