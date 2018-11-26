@@ -8,6 +8,7 @@
 #include "Cube.h"
 #include "Rotor3f.h"
 #include <AntTweakBar.h>
+#include "Cylinder.h"
 
 
 //This will be our only Rigidbody object
@@ -24,12 +25,14 @@ public:
 	void CollisionWithSphere(Sphere* sphere2, ContactManifold* contactManifold);
 	void CollisionWithCubeWithAxisSeparation(Cube* cube, ContactManifold* contact_manifold);
 	void CollisionWithCube(Cube* cube, ContactManifold* contactManifold);
-	
+	void CollisionWithCylinder(Cylinder* cylinder, ContactManifold* contactManifold);//TODO: implement
+
 	void Update();
 	
 	void CollisionResponseWithSphere(Sphere &one, Sphere &two, Vector3 colNormal, Vector3 colPoint);
 	void CollisionResponseWithCubeNoAngular(Sphere& one, Cube& two, Vector3 colNormal, Vector3 colPoint);
 	void CollisionResponseWithCube(Sphere &one, Cube &two, Vector3 colNormal, Vector3 colPoint);
+	void CollisionResponseWithCylinder(Sphere &one, Cylinder &two, Vector3 colNormal, Vector3 colPoint);//TODO: implement
 
 	float InvertMass();
 	void DefineInvTensor();

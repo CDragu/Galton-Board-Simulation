@@ -7,14 +7,14 @@
 #include "Rotor3f.h"
 #include <iostream>
 #include <AntTweakBar.h>
-#define GRAVITY_CONST Vector3(0.0f, -8.91f, 0.0f)
+#define GRAVITY_CONST Vector3(0.0f, -80.91f, 0.0f)
 //#define GRAVITY_CONST Vector3(0.0f, 0, 0.0f)
 
 Sphere::Sphere() : Shape(), m_mass(1), m_radius(5), m_friction(0.5f), m_restitution(1.5f)
 {
 	DefineInvTensor();
 	
-	std::string x = std::to_string(this->countID);
+	/*std::string x = std::to_string(this->countID);
 	BarObj = TwNewBar(x.c_str());
 	TwAddSeparator(BarObj, NULL, " group='Pos' ");
 	TwAddVarRW(BarObj, "X: ", TW_TYPE_FLOAT, &this->m_pos.x, "group=Pos");
@@ -32,7 +32,7 @@ Sphere::Sphere() : Shape(), m_mass(1), m_radius(5), m_friction(0.5f), m_restitut
 	TwAddVarRW(BarObj, "Angular Z: ", TW_TYPE_FLOAT, &this->m_angularVelocity.z, "");
 	TwDefine((x + "  position='0 300' ").c_str());
 	TwDefine((x + "  size='300 300' ").c_str());
-	TwDefine((x + "  refresh=0.1 ").c_str());
+	TwDefine((x + "  refresh=0.1 ").c_str());*/
 }
 
 Sphere::~Sphere(void)
@@ -120,8 +120,6 @@ void Sphere::CollisionWithSphere(Sphere* sphere2, ContactManifold* contactManifo
 	mp.contactPoint = (pos1 + pos2) / 2.0f;
 	contactManifold->Add(mp);
 	
-	//Todo: solving penetration fast
-	//m_pos += mp.contactNormal * mp.penetration;
 }
 
 void Sphere::CollisionWithCubeWithAxisSeparation(Cube* cube, ContactManifold* contact_manifold)
@@ -175,7 +173,7 @@ void Sphere::CollisionWithCubeWithAxisSeparation(Cube* cube, ContactManifold* co
 	contact_manifold->Add(mp);
 
 	//Todo: solving penetration fast
-	m_pos += contactNormal * mp.penetration;
+	//m_pos += contactNormal * mp.penetration;
 }
 
 void Sphere::CollisionWithCube(Cube* cube, ContactManifold* contactManifold)
@@ -557,14 +555,6 @@ void Sphere::CollisionResponseWithCube(Sphere& one, Cube& two, Vector3 colNormal
 		Vector3 aux2 = aux1.Transform(aux1, tensor1);
 		one.m_newAngularVelocity = one.m_angularVelocity + aux2; // TODO: Maybe problem is here
 
-		float Vx = m_newAngularVelocity.x * cos(one.m_rot.x);
-		float Vy = -m_newAngularVelocity.y * sin(one.m_rot.y);
-		float Vz = -m_newVelocity.z * cos(one.m_rot.z) + m_newAngularVelocity.y * sin(one.m_rot.y);
-
-		Vector3 NewVelFromRot(Vx, Vy, Vz);
-
-		one.SetNewVel(one.m_newVelocity + NewVelFromRot);
-
 	/*	Vector3 aux3 = twoPointOfContact.Cross(impulse);
 		Vector3 aux4 = aux3.Transform(aux3, tensor2);
 		two.m_newAngularVelocity = two.m_angularVelocity + aux4;*/
@@ -599,7 +589,7 @@ void Sphere::CollisionResponseWithCube(Sphere& one, Cube& two, Vector3 colNormal
 	}
 	//jt = (-relativeVelocity.Dot(t) / (massOne + massTwo))/2.0f;
 
-	if (jt < 0.0005f)
+	if (abs(jt) < 0.0005f)
 	{
 		return;
 	}

@@ -18,13 +18,13 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 	TwAddVarRW(Bar, "Velocity Sum: ", TW_TYPE_FLOAT, &TotalForce, "");
 
 	ImpulseIteration = 6; // how many times we do the physics calculation for collision response
-	eye = Vector3(0, 0, 200);
+	eye = Vector3(0, 400, 300);
 	/*Node* ParentNode = new Node(nullptr, BoundingSphere(Vector3(0, 0, 0), 1.0f), nullptr);
 	ListOfNodes.push_back(ParentNode);*/
-	for (size_t i = 0; i < 1; i++)
+	for (size_t i = 0; i < 0; i++)
 	{
 		Sphere* m_sphere = new Sphere();
-		m_sphere->SetPos(0.2, 50 * (i+1), 0.3);
+		m_sphere->SetPos(0.2, 100 + 40 * (i+1), 10);
 		m_sphere->SetRadius(3.0f);
 		m_sphere->SetVel(0, -5, 0);
 		m_sphere->SetMass(1.0f);
@@ -33,7 +33,8 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 		m_sphere->SetRot(0, 0, 0); 
 		m_sphere->SetName("Sphere");
 		m_sphere->GeometricType = 0;
-		m_sphere->m_angularVelocity = Vector3(0, 0, 9);
+		m_sphere->m_angularVelocity = Vector3(0, 0, 3);
+		m_sphere->m_friction = 2;
 		m_sphere->DefineInvTensor();
 		ListOfShapes.push_back(m_sphere);
 		//Experimental TODO: Remove if not working
@@ -41,6 +42,15 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 		//Node* node = new Node(ParentNode, , m_sphere);
 		//ListOfNodes.push_back(node);
 	}
+
+	ConstructBoard();
+
+	m_manifold = new ContactManifold();
+
+	QueryPerformanceFrequency(&frequency);
+	QueryPerformanceCounter(&start);
+
+	return;
 
 	//
 	//Cube* m_cube = new Cube();
@@ -56,18 +66,18 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 	//m_cube->GeometricType = 1;
 	//ListOfShapes.push_back(m_cube);
 
-	//Cube* m_cube3 = new Cube();
-	//m_cube3->SetPos(30, -20, 0);
-	//m_cube3->SetName("Cube");
-	//m_cube3->SetSize(1);
-	//m_cube3->SetHeight(3);
-	//m_cube3->SetLength(50);
-	//m_cube3->SetRot(3.14f / 4.0f, 0, 0);
-	//m_cube3->SetWidth(50);
-	//m_cube3->GeometricType = 1;
-	//m_cube3->CalculatePoints();
-	//m_cube3->DefineInvTensor();
-	//ListOfShapes.push_back(m_cube3);
+	Cube* m_cube3 = new Cube();
+	m_cube3->SetPos(30, -20, 0);
+	m_cube3->SetName("Cube");
+	m_cube3->SetSize(1);
+	m_cube3->SetHeight(3);
+	m_cube3->SetLength(50);
+	m_cube3->SetRot(3.14f / 4.0f, 0, 0);
+	m_cube3->SetWidth(50);
+	m_cube3->GeometricType = 1;
+	m_cube3->CalculatePoints();
+	m_cube3->DefineInvTensor();
+	ListOfShapes.push_back(m_cube3);
 
 
 	//Construct Floor;
@@ -108,10 +118,7 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 	//ListOfShapes.push_back(m_sphere);
 
 
-	m_manifold = new ContactManifold();
-
-	QueryPerformanceFrequency(&frequency);
-	QueryPerformanceCounter(&start);
+	
 }
 
 Game::~Game(void)
@@ -129,6 +136,163 @@ void Game::Update()
 	SimulationLoop();
 	
 	Render();
+}
+
+void Game::CreateBox(Vector3 origin, float height, float length, float width)
+{
+	float relativeSize = 10;
+
+	Cube* bottom = new Cube();
+	bottom->SetPos(origin * relativeSize);
+	bottom->SetName("BoardBox");
+	bottom->SetSize(1);
+	bottom->SetHeight(height * relativeSize);
+	bottom->SetLength(length * relativeSize);
+	bottom->SetWidth(width * relativeSize);
+	bottom->SetRot(0, 0, 0);
+	bottom->GeometricType = 1;
+	bottom->m_mass = 20000;
+	bottom->CalculatePoints();
+	bottom->DefineInvTensor();
+	ListOfShapes.push_back(bottom);
+}
+
+void Game::CreateBox(Vector3 origin, float height, float length, float width, Vector3 Rotation)
+{
+	float relativeSize = 10;
+
+	Cube* bottom = new Cube();
+	bottom->SetPos(origin * relativeSize);
+	bottom->SetName("BoardBox");
+	bottom->SetSize(1);
+	bottom->SetHeight(height * relativeSize);
+	bottom->SetLength(length * relativeSize);
+	bottom->SetWidth(width * relativeSize);
+	bottom->SetRot(Rotation);
+	bottom->GeometricType = 1;
+	bottom->m_mass = 20000;
+	bottom->CalculatePoints();
+	bottom->DefineInvTensor();
+	ListOfShapes.push_back(bottom);
+}
+
+void Game::CreateCylinder(Vector3 origin)
+{
+	float relativeSize = 10;
+
+	/*Sphere* m_sphere = new Sphere();
+	m_sphere->SetPos(origin);
+	m_sphere->SetRadius(2.0f);
+	m_sphere->SetVel(0, 0, 0);
+	m_sphere->SetMass(20000.0f);
+	m_sphere->SetVel(0, 0, 0);
+	m_sphere->SetNewVel(Vector3(0.0f, 0.0f, 0.0f));
+	m_sphere->SetRot(0, 0, 0);
+	m_sphere->SetName("Sphere");
+	m_sphere->GeometricType = 0;
+	m_sphere->m_angularVelocity = Vector3(0, 0, 3);
+	m_sphere->m_friction = 2;
+	m_sphere->DefineInvTensor();
+	ListOfShapes.push_back(m_sphere);*/
+
+	Cylinder* m_cylinder = new Cylinder();
+	m_cylinder->SetPos(origin * relativeSize);
+	m_cylinder->SetName("Cylinder");
+	m_cylinder->SetRadius(2.0f);
+	m_cylinder->SetHeight(50.0f);
+	m_cylinder->GeometricType = 2;
+	ListOfShapes.push_back(m_cylinder);
+}
+
+void Game::ConstructBoard() {
+	
+	Vector3 origin(0, 20, 0);
+	Vector3 originRotation(0, 0, 0);
+
+
+	//Create Balls in right pos
+	for (int i = 0; i < 5; i++)
+	{
+		for (int j = 0; j < 5; j++)
+		{
+			float relativeSize = 10;
+
+			float xPos = (j * 1.3f) - 6.0f;
+			float yPos = (i * 1) + 22;
+
+			Sphere* m_sphere = new Sphere();
+			m_sphere->SetPos((origin + Vector3(xPos, yPos, 2))* relativeSize);
+			m_sphere->SetRadius(3.0f);
+			m_sphere->SetMass(1.0f);
+			//m_sphere->SetNewVel(Vector3(0.0f, 0.0f, 0.0f));
+			//m_sphere->SetRot(0, 0, 0);
+			m_sphere->SetName("Sphere");
+			m_sphere->GeometricType = 0;
+			//m_sphere->m_angularVelocity = Vector3(0, 0, 3);
+			m_sphere->m_friction = 2;
+			m_sphere->DefineInvTensor();
+			ListOfShapes.push_back(m_sphere);
+		}
+	}
+
+	//Create Bottom of box
+	CreateBox(origin, 22, 12, 0.1f);
+
+	//Create Right Side Of Box
+	CreateBox(origin + Vector3(6, 0, 2), 22, 1, 4);
+
+	//Create Left Side Of Box
+	CreateBox(origin + Vector3(-6, 0, 2), 22, 1, 4);
+
+	//Create Down side of box
+	CreateBox(origin + Vector3(0, -11, 2), 1, 12, 4);
+
+	//Create LeftSide of Top
+	CreateBox(origin + Vector3(-3.5f, 11, 2), 1, 4, 5);
+
+	//Create RightSide of Top
+	CreateBox(origin + Vector3(+3.5f, 11, 2), 1, 4, 5);
+
+	//Create Funnel back
+	CreateBox(origin + Vector3(0, 16, 0), 10, 12, 0.1f);
+
+	//Create Funnel Left
+	CreateBox(origin + Vector3(-5.0f, 14.5f, 2), 10, 1, 4, Vector3(3.14f / 4.0f, 0, 0));
+
+	//Create Funnel Right
+	CreateBox(origin + Vector3(5.0f, 14.5f, 2), 10, 1, 4, Vector3(-3.14f / 4.0f, 0, 0));
+
+	//Creating the bins
+	for (int i = 0; i < 8; i++)
+	{
+		float xPos = (i * 1.3f) - 4.5f;
+		CreateBox(origin + Vector3(xPos, -6, 2), 10, 0.2f, 4);
+	}
+
+	//Create the cylinder
+	for(int i = 0; i < 10; i++)
+	{
+		if(i % 2 == 0)
+		{
+			for (int j = 0; j < 8; j++)
+			{
+				float xPos = (j * 1.3f) - 4.5f;
+				float yPos = (i * 1) - 1;
+				CreateCylinder(origin + Vector3(xPos, yPos, 0));
+			}
+		}else
+		{
+			for (int j = 0; j < 7; j++)
+			{
+				float xPos = (j * 1.3f) - 4.0f;
+				float yPos = (i * 1) - 1;
+				CreateCylinder(origin + Vector3(xPos, yPos, 0));
+			}
+		}
+	}
+
+	
+
 }
 
 void Game::SimulationLoop()
@@ -239,14 +403,14 @@ void Game::DynamicCollisionResponse()
 		{
 			ManifoldPoint &point = m_manifold->GetPoint(collision);
 
-			if(point.contactID1->GetName() == "Sphere" && point.contactID2->GetName() == "Sphere")
+			if(point.contactID1->GeometricType == 0 && point.contactID2->GeometricType == 0)
 			{
 				dynamic_cast<Sphere*>(point.contactID1)->CollisionResponseWithSphere(*dynamic_cast<Sphere*>(point.contactID1), *dynamic_cast<Sphere*>(point.contactID2), point.contactNormal, point.contactPoint);
 				dynamic_cast<Sphere*>(point.contactID1)->Update();
 				dynamic_cast<Sphere*>(point.contactID2)->Update();
 			}
 
-			if (point.contactID1->GetName() == "Sphere" && point.contactID2->GetName() == "Cube")
+			if (point.contactID1->GeometricType == 0 && point.contactID2->GeometricType == 1)
 			{
 				dynamic_cast<Sphere*>(point.contactID1)->CollisionResponseWithCube(*dynamic_cast<Sphere*>(point.contactID1), *dynamic_cast<Cube*>(point.contactID2), point.contactNormal, point.contactPoint);
 				dynamic_cast<Sphere*>(point.contactID1)->Update();
@@ -288,8 +452,8 @@ void Game::CorrectObjectSinking()
 			Vector3 CorrectionSphere1 = point.contactID1->GetPos() - correction * m1;
 			point.contactID1->SetPos(CorrectionSphere1.x , CorrectionSphere1.y, CorrectionSphere1.z);
 			
-			Vector3 CorrectionSphere2 = point.contactID2->GetPos() - correction * m2;
-			point.contactID2->SetPos(CorrectionSphere2.x, CorrectionSphere2.y, CorrectionSphere2.z);
+			/*Vector3 CorrectionSphere2 = point.contactID2->GetPos() - correction * m2;
+			point.contactID2->SetPos(CorrectionSphere2.x, CorrectionSphere2.y, CorrectionSphere2.z);*/ //TODO: Have another look at this, may be broken, maybe we need to keep this values with us until next update frame and make a sum
 		}
 
 		if(point.contactID1->GeometricType == 0 && point.contactID2->GeometricType == 1)
@@ -311,7 +475,10 @@ void Game::Render()									// Here's Where We Do All The Drawing
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
 	glLoadIdentity();									// Reset The Current Modelview Matrix
-	gluLookAt(eye.x, eye.y, eye.z, 0, 0, 0, 0, 1, 0);
+	gluLookAt(
+		eye.x, eye.y, eye.z,
+		0, 200, 0,
+		0, 1, 0);
 
 	glDisable(GL_TEXTURE_2D);
 

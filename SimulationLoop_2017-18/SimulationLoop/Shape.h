@@ -16,8 +16,10 @@ public:
 
 	void SetName(std::string name);
 	void SetPos(float x, float y, float z);
+	void SetPos(Vector3 x);
 	void SetTexture(GLuint texture);
 	void SetRot(float x, float y, float z);
+	void SetRot(Vector3 Rot);
 
 	std::string GetName() const;
 	Vector3 GetPos() const;
@@ -30,7 +32,7 @@ public:
 	virtual void Render() const;
 
 	std::string m_name;
-	int GeometricType; //Sphere = 0, Cube = 1 
+	int GeometricType; //Sphere = 0, Cube = 1 , Cylinder = 2
 	Vector3 m_pos;
 	Vector3 m_rot;//in Euler angles TODO: is in radians now
 	Vector3 m_scale;

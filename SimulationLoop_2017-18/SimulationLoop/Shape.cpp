@@ -29,6 +29,13 @@ void Shape::SetPos(float x, float y, float z)
 	rotation = CrateRotor();
 }
 
+void Shape::SetPos(Vector3 x)
+{
+	m_pos = x;
+	transform = CreateTransformMatrix();
+	rotation = CrateRotor();
+}
+
 void Shape::SetTexture(GLuint texture)
 {
 	m_texture = texture;
@@ -37,6 +44,13 @@ void Shape::SetTexture(GLuint texture)
 void Shape::SetRot(float x, float y, float z)
 {
 	m_rot = Vector3(x, y, z);
+	transform = CreateTransformMatrix();
+	rotation = CrateRotor();
+}
+
+void Shape::SetRot(Vector3 Rot)
+{
+	m_rot = Rot;
 	transform = CreateTransformMatrix();
 	rotation = CrateRotor();
 }

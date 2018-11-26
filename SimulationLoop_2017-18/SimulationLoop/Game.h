@@ -15,6 +15,10 @@ public:
 	~Game(void);
 
 	void Update();
+	void CreateBox(Vector3 origin, float height, float length, float width);
+	void CreateBox(Vector3 origin, float height, float length, float width, Vector3 Rotation);
+	void CreateCylinder(Vector3 origin);
+	void ConstructBoard();
 	void KeyboardResponse(const char key);
 	void SimulationLoop();
 	void CalculateObjectPhysics();
