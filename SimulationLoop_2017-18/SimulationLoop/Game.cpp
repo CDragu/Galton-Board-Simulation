@@ -12,7 +12,7 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 {
 	Bar = TwNewBar("Bar");
 	TwDefine(("Bar  position='0 0' "));
-	TwDefine(("Bar  size='100 50' "));
+	TwDefine(("Bar  size='200 50' "));
 	TwDefine("Bar refresh=0.1 ");
 	TwAddVarRW(Bar, "FPS", TW_TYPE_INT32, &m_fps, "");
 	TwAddVarRW(Bar, "Velocity Sum: ", TW_TYPE_FLOAT, &TotalForce, "");
@@ -27,13 +27,13 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 		m_sphere->SetPos(0.2, 50 * (i+1), 0.3);
 		m_sphere->SetRadius(3.0f);
 		m_sphere->SetVel(0, -5, 0);
-		m_sphere->SetMass(750.0f);
+		m_sphere->SetMass(1.0f);
 		m_sphere->SetVel(0, -30, 0);
 		m_sphere->SetNewVel(Vector3(0.0f,0.0f, 0.0f));
-		m_sphere->SetRot(0, 3.14f / 4.0f, 0); //TODO: this is rendered in euler but matrix has to be in radian
+		m_sphere->SetRot(0, 0, 0); 
 		m_sphere->SetName("Sphere");
 		m_sphere->GeometricType = 0;
-		//m_sphere->m_angularVelocity = Vector3(90, 0, 0);
+		m_sphere->m_angularVelocity = Vector3(0, 0, 9);
 		m_sphere->DefineInvTensor();
 		ListOfShapes.push_back(m_sphere);
 		//Experimental TODO: Remove if not working
@@ -57,27 +57,33 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 	//ListOfShapes.push_back(m_cube);
 
 	//Cube* m_cube3 = new Cube();
-	//m_cube3->SetPos(-10, 0, 0);
+	//m_cube3->SetPos(30, -20, 0);
 	//m_cube3->SetName("Cube");
 	//m_cube3->SetSize(1);
 	//m_cube3->SetHeight(3);
 	//m_cube3->SetLength(50);
-	//m_cube3->SetRot(-3.14f / 4.0f, 0, 0);
+	//m_cube3->SetRot(3.14f / 4.0f, 0, 0);
 	//m_cube3->SetWidth(50);
 	//m_cube3->GeometricType = 1;
+	//m_cube3->CalculatePoints();
+	//m_cube3->DefineInvTensor();
 	//ListOfShapes.push_back(m_cube3);
 
 
 	//Construct Floor;
 	Cube* m_cube2 = new Cube();
-	m_cube2->SetPos(0.2f, -40.0f, 0.3f);
+	m_cube2->SetPos(0.2f, -20.0f, 0.3f);
 	m_cube2->SetName("Cube");
 	m_cube2->SetSize(1);
 	m_cube2->SetHeight(6);
 	m_cube2->SetLength(100);
 	m_cube2->SetRot(0,0 , 0);
 	m_cube2->SetWidth(100);
+	//m_cube2->SetRot(-3.14f / 4.0f, 0, 0);
+	m_cube2->SetRot(0, 0, 0);
 	m_cube2->GeometricType = 1;
+	m_cube2->m_mass = 20000;
+	m_cube2->CalculatePoints();
 	m_cube2->DefineInvTensor();
 	ListOfShapes.push_back(m_cube2);
 
@@ -88,18 +94,18 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 	m_cylinder->SetHeight(50.0f);
 	ListOfShapes.push_back(m_cylinder);
 
-	Sphere* m_sphere = new Sphere();
-	m_sphere->SetPos(0.2, 10, 0.3);
-	m_sphere->SetRadius(3.0f);
-	m_sphere->SetMass(750000.0f);
-	m_sphere->SetVel(0, 0, 0);
-	m_sphere->SetNewVel(Vector3(0.0f, 0.0f, 0.0f));
-	m_sphere->SetRot(0, 3.14f / 4.0f, 0); //TODO: this is rendered in euler but matrix has to be in radian
-	m_sphere->SetName("Sphere");
-	m_sphere->GeometricType = 0;
-	//m_sphere->m_angularVelocity = Vector3(90, 0, 0);
-	m_sphere->DefineInvTensor();
-	ListOfShapes.push_back(m_sphere);
+	//Sphere* m_sphere = new Sphere();
+	//m_sphere->SetPos(0.2, 10, 0.3);
+	//m_sphere->SetRadius(3.0f);
+	//m_sphere->SetMass(750000.0f);
+	//m_sphere->SetVel(0, 0, 0);
+	//m_sphere->SetNewVel(Vector3(0.0f, 0.0f, 0.0f));
+	//m_sphere->SetRot(0, 3.14f / 4.0f, 0); 
+	//m_sphere->SetName("Sphere");
+	//m_sphere->GeometricType = 0;
+	////m_sphere->m_angularVelocity = Vector3(90, 0, 0);
+	//m_sphere->DefineInvTensor();
+	//ListOfShapes.push_back(m_sphere);
 
 
 	m_manifold = new ContactManifold();

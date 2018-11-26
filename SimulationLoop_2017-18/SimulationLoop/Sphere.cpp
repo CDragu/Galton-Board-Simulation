@@ -7,19 +7,32 @@
 #include "Rotor3f.h"
 #include <iostream>
 #include <AntTweakBar.h>
-//#define GRAVITY_CONST Vector3(0.0f, -8.91f, 0.0f)
-#define GRAVITY_CONST Vector3(0.0f, 0, 0.0f)
+#define GRAVITY_CONST Vector3(0.0f, -8.91f, 0.0f)
+//#define GRAVITY_CONST Vector3(0.0f, 0, 0.0f)
 
-Sphere::Sphere() : Shape(), m_mass(1), m_radius(5), m_friction(0.6f), m_restitution(1.6f)
+Sphere::Sphere() : Shape(), m_mass(1), m_radius(5), m_friction(0.5f), m_restitution(1.5f)
 {
 	DefineInvTensor();
 	
-	/*std::string x = std::to_string(this->countID);
+	std::string x = std::to_string(this->countID);
 	BarObj = TwNewBar(x.c_str());
-	TwAddVarRW(BarObj, "X: ", TW_TYPE_FLOAT, &this->m_pos.x, "");
+	TwAddSeparator(BarObj, NULL, " group='Pos' ");
+	TwAddVarRW(BarObj, "X: ", TW_TYPE_FLOAT, &this->m_pos.x, "group=Pos");
+	TwAddVarRW(BarObj, "Y: ", TW_TYPE_FLOAT, &this->m_pos.y, "group=Pos");
+	TwAddVarRW(BarObj, "Z: ", TW_TYPE_FLOAT, &this->m_pos.z, "group=Pos");
+	
+	TwAddSeparator(BarObj, NULL, " group='Vel' ");
+	TwAddVarRW(BarObj, "Vel X: ", TW_TYPE_FLOAT, &this->m_velocity.x, "");
+	TwAddVarRW(BarObj, "Vel Y: ", TW_TYPE_FLOAT, &this->m_velocity.y, "");
+	TwAddVarRW(BarObj, "Vel Z: ", TW_TYPE_FLOAT, &this->m_velocity.z, "");
+	
+	TwAddSeparator(BarObj, NULL, " group='Angular Vel' ");
+	TwAddVarRW(BarObj, "Angular X: ", TW_TYPE_FLOAT, &this->m_angularVelocity.x, "");
+	TwAddVarRW(BarObj, "Angular Y: ", TW_TYPE_FLOAT, &this->m_angularVelocity.y, "");
+	TwAddVarRW(BarObj, "Angular Z: ", TW_TYPE_FLOAT, &this->m_angularVelocity.z, "");
 	TwDefine((x + "  position='0 300' ").c_str());
-	TwDefine((x + "  size='100 50' ").c_str());
-	TwDefine("Bar refresh=0.1 ");*/
+	TwDefine((x + "  size='300 300' ").c_str());
+	TwDefine((x + "  refresh=0.1 ").c_str());
 }
 
 Sphere::~Sphere(void)
@@ -317,8 +330,8 @@ void Sphere::CollisionResponseWithSphere(Sphere &one, Sphere &two, Vector3 colNo
 
 
 
-	Vector3 relativeVelocity = (two.m_velocity + two.m_angularVelocity.Cross(twoPointOfContact)) -
-		(one.m_velocity + one.m_angularVelocity.Cross(onePointOfContact));
+	Vector3 relativeVelocity = (two.m_velocity + two.m_angularVelocity.Cross(twoPointOfContact))
+		- (one.m_velocity + one.m_angularVelocity.Cross(onePointOfContact));
 
 	float DotRelativeVelocity = relativeVelocity.Dot(colNormal);
 	if (DotRelativeVelocity > 0.0f) {
@@ -365,8 +378,6 @@ void Sphere::CollisionResponseWithSphere(Sphere &one, Sphere &two, Vector3 colNo
 		Vector3 aux4 = aux3.Transform(aux3, tensor2);
 		two.m_newAngularVelocity = two.m_angularVelocity + aux4;
 	}
-
-	return;
 
 	//Adding some friction now
 	Vector3 t = relativeVelocity - (colNormal * DotRelativeVelocity);
@@ -501,10 +512,11 @@ void Sphere::CollisionResponseWithCube(Sphere& one, Cube& two, Vector3 colNormal
 		auto velocity1 = (one.m_velocity + one.m_angularVelocity.Cross(onePointOfContact));
 
 		relativeVelocity = velocity2  - velocity1;
+		
 	}
 	colNormal.Normalize();
 	
-	float DotRelativeVelocity = relativeVelocity.Dot(colNormal);
+	float DotRelativeVelocity = relativeVelocity.Dot(-colNormal);
 	if (DotRelativeVelocity > 0.0f) {
 		return; //If the objects are moving apart then they can not be colliding
 	}
@@ -536,20 +548,28 @@ void Sphere::CollisionResponseWithCube(Sphere& one, Cube& two, Vector3 colNormal
 		}
 	}
 	Vector3 impulse = colNormal * j;
-	one.SetNewVel(one.m_velocity - impulse * massOne);
+	one.SetNewVel(one.m_velocity + impulse * massOne);
 
 	//two.SetNewVel(two.m_velocity + impulse * massTwo);
 	//Angular velocity
 	{
 		Vector3 aux1 = onePointOfContact.Cross(impulse);
 		Vector3 aux2 = aux1.Transform(aux1, tensor1);
-		one.m_newAngularVelocity = one.m_angularVelocity - aux2;
+		one.m_newAngularVelocity = one.m_angularVelocity + aux2; // TODO: Maybe problem is here
+
+		float Vx = m_newAngularVelocity.x * cos(one.m_rot.x);
+		float Vy = -m_newAngularVelocity.y * sin(one.m_rot.y);
+		float Vz = -m_newVelocity.z * cos(one.m_rot.z) + m_newAngularVelocity.y * sin(one.m_rot.y);
+
+		Vector3 NewVelFromRot(Vx, Vy, Vz);
+
+		one.SetNewVel(one.m_newVelocity + NewVelFromRot);
 
 	/*	Vector3 aux3 = twoPointOfContact.Cross(impulse);
 		Vector3 aux4 = aux3.Transform(aux3, tensor2);
 		two.m_newAngularVelocity = two.m_angularVelocity + aux4;*/
 	}
-	return;
+	
 
 	//Adding some friction now
 	Vector3 t = relativeVelocity - (colNormal * DotRelativeVelocity);
