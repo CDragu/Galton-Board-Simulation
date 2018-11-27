@@ -25,7 +25,7 @@ public:
 	void CollisionWithSphere(Sphere* sphere2, ContactManifold* contactManifold);
 	void CollisionWithCubeWithAxisSeparation(Cube* cube, ContactManifold* contact_manifold);
 	void CollisionWithCube(Cube* cube, ContactManifold* contactManifold);
-	void CollisionWithCylinder(Cylinder* cylinder, ContactManifold* contactManifold);//TODO: implement
+	void CollisionWithCylinder(Cylinder* cylinder, ContactManifold* contactManifold);
 
 	void Update();
 	

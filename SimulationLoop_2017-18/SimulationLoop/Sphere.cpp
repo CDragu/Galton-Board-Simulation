@@ -292,6 +292,32 @@ void Sphere::CollisionWithCube(Cube* cube, ContactManifold* contactManifold)
 
 }
 
+void Sphere::CollisionWithCylinder(Cylinder* cylinder, ContactManifold* contactManifold)
+{
+	Vector3 pos1 = this->GetNewPos();
+	Vector3 pos2 = cylinder->m_pos;
+
+	Vector3 midline = pos1 - pos2;
+	midline = Vector3(midline.x, midline.y, 0); //Cylinders are always aligned on the Z axis
+	float size = midline.Length();
+	if (size <= 0.0f || size >= m_radius + cylinder->m_radius)
+	{
+		return;
+	}
+
+	float penetration = m_radius + cylinder->m_radius - size;
+	//Vector3 contactPoint = (pos1 + midline)/2.0f;//TODO: Check
+
+	ManifoldPoint mp;
+	mp.contactID1 = this;
+	mp.contactID2 = cylinder;
+	Vector3 x = pos2 - pos1;
+	x.Normalize(mp.contactNormal);
+	mp.penetration = penetration;
+	mp.contactPoint = (pos1 + pos2) / 2.0f;
+	contactManifold->Add(mp);
+}
+
 void Sphere::ResetPos()
 {
 	m_newPos = GetPos();
@@ -560,6 +586,141 @@ void Sphere::CollisionResponseWithCube(Sphere& one, Cube& two, Vector3 colNormal
 		two.m_newAngularVelocity = two.m_angularVelocity + aux4;*/
 	}
 	
+
+	//Adding some friction now
+	Vector3 t = relativeVelocity - (colNormal * DotRelativeVelocity);
+	if (t.LengthSquared() < 0.0005f)
+	{
+		return;
+	}
+
+	t.Normalize(t);
+	float jt;
+	{
+		jt = -relativeVelocity.Dot(t);
+
+		float SumMass = massOne + massTwo;
+		Vector3 aux1 = onePointOfContact.Cross(t);
+		Vector3 aux2 = aux1.Transform(aux1, tensor1);
+		Vector3 aux3 = aux2.Cross(onePointOfContact);
+
+		Vector3 aux4 = twoPointOfContact.Cross(t);
+		Vector3 aux5 = aux4.Transform(aux4, tensor2);
+		Vector3 aux6 = aux5.Cross(twoPointOfContact);
+
+		Vector3 aux7 = aux3 + aux6;
+		float aux8 = SumMass + t.Dot(aux7);
+
+		jt = (jt / aux8) / 2.0f;
+	}
+	//jt = (-relativeVelocity.Dot(t) / (massOne + massTwo))/2.0f;
+
+	if (abs(jt) < 0.0005f)
+	{
+		return;
+	}
+
+	float friction = sqrt(one.m_friction * two.m_friction);
+	if (jt > j * friction) {
+		jt = j * friction;
+	}
+	else if (jt < -j * friction) {
+		jt = -j * friction;
+	}
+
+	Vector3 TangentOfImpulse = t * jt;
+
+	one.SetNewVel(one.m_newVelocity - TangentOfImpulse * massOne);
+
+	//two.SetNewVel(one.m_newVelocity + TangentOfImpulse * massTwo);
+
+	//Angular velocity
+	{
+		Vector3 aux1 = onePointOfContact.Cross(TangentOfImpulse);
+		Vector3 aux2 = aux1.Transform(aux1, tensor1);
+		one.m_newAngularVelocity = one.m_angularVelocity - aux2;
+
+		/*Vector3 aux3 = twoPointOfContact.Cross(TangentOfImpulse);
+		Vector3 aux4 = aux3.Transform(aux3, tensor2);
+		two.m_newAngularVelocity = two.m_angularVelocity + aux4;*/
+	}
+}
+
+void Sphere::CollisionResponseWithCylinder(Sphere& one, Cylinder& two, Vector3 colNormal, Vector3 colPoint)
+{
+	float massOne = one.InvertMass();
+	float massTwo = two.InvertMass();
+	if (massOne + massTwo == 0.0f)
+	{
+		return;
+	}
+
+	Vector3 onePointOfContact = colPoint - one.m_pos;
+	Vector3 twoPointOfContact = colPoint - two.m_pos;
+
+	Matrix tensor1 = m_InvTensor;
+	Matrix tensor2 = two.m_InvTensor;
+
+
+	Vector3 relativeVelocity = (two.m_velocity + two.m_angularVelocity.Cross(twoPointOfContact))
+		- (one.m_velocity + one.m_angularVelocity.Cross(onePointOfContact));
+
+
+	{
+		auto velocity2 = (two.m_velocity + two.m_angularVelocity.Cross(twoPointOfContact));
+		auto velocity1 = (one.m_velocity + one.m_angularVelocity.Cross(onePointOfContact));
+
+		relativeVelocity = velocity2 - velocity1;
+
+	}
+	colNormal.Normalize();
+
+	float DotRelativeVelocity = relativeVelocity.Dot(colNormal);
+	if (DotRelativeVelocity > 0.0f) {
+		return; //If the objects are moving apart then they can not be colliding
+	}
+
+	float e = fmin(one.m_restitution, two.m_restitution);
+	float j = (-(1.0f + e) * DotRelativeVelocity);//Calculating the magnitude of collision
+
+	{
+		float SumMass = massOne + massTwo;
+		Vector3 aux1 = onePointOfContact.Cross(colNormal);
+		Vector3 aux2 = aux1.Transform(aux1, tensor1);
+		Vector3 aux3 = aux2.Cross(onePointOfContact);
+
+		Vector3 aux4 = twoPointOfContact.Cross(colNormal);
+		Vector3 aux5 = aux4.Transform(aux4, tensor2);
+		Vector3 aux6 = aux5.Cross(twoPointOfContact);
+
+		Vector3 aux7 = aux3 + aux6;
+		float aux8 = SumMass + colNormal.Dot(aux3) + colNormal.Dot(aux6);
+
+		if (aux8 != 0)
+		{
+			j = j / aux8;
+		}
+
+		if (j != 0)
+		{
+			j = j / 2.0f;
+		}
+	}
+	Vector3 impulse = colNormal * j;
+	one.SetNewVel(one.m_velocity + impulse * massOne);
+
+	//two.SetNewVel(two.m_velocity + impulse * massTwo);
+	//Angular velocity
+	{
+		Vector3 aux1 = onePointOfContact.Cross(impulse);
+		Vector3 aux2 = aux1.Transform(aux1, tensor1);
+		one.m_newAngularVelocity = one.m_angularVelocity + aux2; // TODO: Maybe problem is here
+
+	/*	Vector3 aux3 = twoPointOfContact.Cross(impulse);
+		Vector3 aux4 = aux3.Transform(aux3, tensor2);
+		two.m_newAngularVelocity = two.m_angularVelocity + aux4;*/
+	}
+
 
 	//Adding some friction now
 	Vector3 t = relativeVelocity - (colNormal * DotRelativeVelocity);

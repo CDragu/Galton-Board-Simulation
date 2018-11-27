@@ -40,3 +40,15 @@ void Cylinder::Render() const
 	gluCylinder(quadric, m_radius, m_radius, m_height, 20, 20);
 	glPopMatrix();
 }
+
+float Cylinder::InvertMass()
+{
+	if (m_mass == 0.0f)
+	{
+		return 0.0f;
+	}
+	else
+	{
+		return 1.0f / m_mass;
+	}
+}
