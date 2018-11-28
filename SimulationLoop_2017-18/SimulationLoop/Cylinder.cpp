@@ -3,7 +3,7 @@
 #include "TextureLoader.h"
 
 
-Cylinder::Cylinder(void) :Shape(), m_radius(5), m_height(2), m_friction(0.5f), m_restitution(1.5f) {}
+Cylinder::Cylinder(void) :Shape(), m_radius(5), m_height(2), m_friction(0.7f), m_restitution(1.8f) {}
 Cylinder::~Cylinder()
 = default;
 

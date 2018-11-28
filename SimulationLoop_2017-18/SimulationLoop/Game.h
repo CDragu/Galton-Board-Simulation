@@ -11,6 +11,7 @@
 class Game
 {
 public:
+	void InitializeTestEnviroment();
 	Game(HDC hdc);
 	~Game(void);
 
@@ -19,6 +20,7 @@ public:
 	void CreateBox(Vector3 origin, float height, float length, float width, Vector3 Rotation);
 	void CreateCylinder(Vector3 origin);
 	void ConstructBoard();
+	void Restart();
 	void KeyboardResponse(const char key);
 	void SimulationLoop();
 	void CalculateObjectPhysics();
@@ -45,5 +47,8 @@ public:
 
 	int ImpulseIteration;
 	float TotalForce;
+	float DepenetrationValue;
+	float TimeStep;
+	float SleepThreshold;
 };
 

@@ -8,34 +8,59 @@
 #include "Cylinder.h"
 #include <AntTweakBar.h>
 
-Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
+Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0), DepenetrationValue(0.85f), TimeStep(0.008f), SleepThreshold(0.05f)
 {
 	Bar = TwNewBar("Bar");
 	TwDefine(("Bar  position='0 0' "));
-	TwDefine(("Bar  size='200 50' "));
+	TwDefine(("Bar  size='200 120' "));
 	TwDefine("Bar refresh=0.1 ");
 	TwAddVarRW(Bar, "FPS", TW_TYPE_INT32, &m_fps, "");
 	TwAddVarRW(Bar, "Velocity Sum: ", TW_TYPE_FLOAT, &TotalForce, "");
-
+	TwAddVarRW(Bar, "Depenetration Value: ", TW_TYPE_FLOAT, &DepenetrationValue, "");
+	TwAddVarRW(Bar, "Sleep Threshold: ", TW_TYPE_FLOAT, &SleepThreshold, "");
+	TwAddVarRW(Bar, "Time Step: ", TW_TYPE_FLOAT, &TimeStep, "");
 	ImpulseIteration = 6; // how many times we do the physics calculation for collision response
+	
+	InitializeTestEnviroment();
+}
+
+Game::~Game(void)
+{
+	ListOfShapes.clear();
+
+	delete m_manifold;
+}
+
+void Game::Update()
+{
+	// **************************************************
+	// The simulation loop should be on its own thread(s)
+	// **************************************************
+	SimulationLoop();
+	
+	Render();
+}
+
+void Game::InitializeTestEnviroment()
+{
 	eye = Vector3(0, 20, 200);
 	/*Node* ParentNode = new Node(nullptr, BoundingSphere(Vector3(0, 0, 0), 1.0f), nullptr);
 	ListOfNodes.push_back(ParentNode);*/
-	for (size_t i = 0; i < 0; i++)
+	for (size_t i = 0; i < 4; i++)
 	{
 		Sphere* m_sphere = new Sphere();
-		m_sphere->SetPos(3, 20 + 40 * (i+1), 20);
+		m_sphere->SetPos(3, 20 + 40 * (i + 1), 20);
 		m_sphere->SetRadius(3.0f);
 		m_sphere->SetVel(0, -5, 0);
 		m_sphere->SetMass(1.0f);
 		m_sphere->SetVel(0, -30, 0);
-		m_sphere->SetNewVel(Vector3(0.0f,0.0f, 0.0f));
-		m_sphere->SetRot(0, 0, 0); 
+		m_sphere->SetNewVel(Vector3(0.0f, 0.0f, 0.0f));
+		m_sphere->SetRot(0, 0, 0);
 		m_sphere->SetName("Sphere");
 		m_sphere->GeometricType = 0;
 		m_sphere->m_angularVelocity = Vector3(0, 0, 0);
-		m_sphere->m_friction = 2;
 		m_sphere->DefineInvTensor();
+		m_sphere->m_sleepThreshold = SleepThreshold;
 		ListOfShapes.push_back(m_sphere);
 		//Experimental TODO: Remove if not working
 		//ParentNode->Insert(m_sphere, BoundingSphere(m_sphere->GetPos(), m_sphere->GetRadius()));
@@ -43,14 +68,14 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 		//ListOfNodes.push_back(node);
 	}
 
-	ConstructBoard();
+	//ConstructBoard();
 
 	m_manifold = new ContactManifold();
 
 	QueryPerformanceFrequency(&frequency);
 	QueryPerformanceCounter(&start);
 
-	return;
+	//return;
 
 	//
 	//Cube* m_cube = new Cube();
@@ -66,18 +91,32 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 	//m_cube->GeometricType = 1;
 	//ListOfShapes.push_back(m_cube);
 
-	/*Cube* m_cube3 = new Cube();
-	m_cube3->SetPos(-1.5f, 20, 0);
+	Cube* m_cube3 = new Cube();
+	m_cube3->SetPos(-35.5f, 20, 0);
 	m_cube3->SetName("Cube");
 	m_cube3->SetSize(1);
-	m_cube3->SetHeight(5);
+	m_cube3->SetHeight(100);
 	m_cube3->SetLength(5);
-	m_cube3->SetWidth(5);
+	m_cube3->SetWidth(50);
 	m_cube3->SetRot(0, 0, 0);
 	m_cube3->GeometricType = 1;
 	m_cube3->CalculatePoints();
 	m_cube3->DefineInvTensor();
-	ListOfShapes.push_back(m_cube3);*/
+	ListOfShapes.push_back(m_cube3);
+
+
+	Cube* m_cube4 = new Cube();
+	m_cube4->SetPos(-20.5f, -10, 0);
+	m_cube4->SetName("Cube");
+	m_cube4->SetSize(1);
+	m_cube4->SetHeight(20);
+	m_cube4->SetLength(5);
+	m_cube4->SetWidth(50);
+	m_cube4->SetRot(0, 0, 0);
+	m_cube4->GeometricType = 1;
+	m_cube4->CalculatePoints();
+	m_cube4->DefineInvTensor();
+	ListOfShapes.push_back(m_cube4);
 
 
 	//Construct Floor;
@@ -87,7 +126,7 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 	m_cube2->SetSize(1);
 	m_cube2->SetHeight(6);
 	m_cube2->SetLength(100);
-	m_cube2->SetRot(0,0 , 0);
+	m_cube2->SetRot(0, 0, 0);
 	m_cube2->SetWidth(100);
 	//m_cube2->SetRot(-3.14f / 4.0f, 0, 0);
 	m_cube2->SetRot(0, 0, 0);
@@ -118,7 +157,7 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 		ListOfShapes.push_back(m_cylinder);
 	}
 
-	
+
 	//Sphere* m_sphere = new Sphere();
 	//m_sphere->SetPos(0.2, 10, 0.3);
 	//m_sphere->SetRadius(3.0f);
@@ -131,23 +170,6 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0)
 	////m_sphere->m_angularVelocity = Vector3(90, 0, 0);
 	//m_sphere->DefineInvTensor();
 	//ListOfShapes.push_back(m_sphere);
-}
-
-Game::~Game(void)
-{
-	ListOfShapes.clear();
-
-	delete m_manifold;
-}
-
-void Game::Update()
-{
-	// **************************************************
-	// The simulation loop should be on its own thread(s)
-	// **************************************************
-	SimulationLoop();
-	
-	Render();
 }
 
 void Game::CreateBox(Vector3 origin, float height, float length, float width)
@@ -223,12 +245,9 @@ void Game::ConstructBoard() {
 			m_sphere->SetPos((origin + Vector3(xPos, yPos, 2))* relativeSize);
 			m_sphere->SetRadius(2.0f);
 			m_sphere->SetMass(1.0f);
-			//m_sphere->SetNewVel(Vector3(0.0f, 0.0f, 0.0f));
-			//m_sphere->SetRot(0, 0, 0);
 			m_sphere->SetName("Sphere");
 			m_sphere->GeometricType = 0;
-			//m_sphere->m_angularVelocity = Vector3(0, 0, 3);
-			m_sphere->m_friction = 2;
+			m_sphere->m_sleepThreshold = SleepThreshold;
 			m_sphere->DefineInvTensor();
 			ListOfShapes.push_back(m_sphere);
 		}
@@ -292,6 +311,32 @@ void Game::ConstructBoard() {
 	}
 }
 
+void Game::Restart()
+{
+	for (int i = 0; i < ListOfShapes.size(); i++)
+	{
+		if((*ListOfShapes[i]).GeometricType == 0)
+		{
+			dynamic_cast<Sphere*>(ListOfShapes[i])->~Sphere();
+		}
+
+		if ((*ListOfShapes[i]).GeometricType == 1)
+		{
+			dynamic_cast<Cube*>(ListOfShapes[i])->~Cube();
+		}
+
+		if ((*ListOfShapes[i]).GeometricType == 2)
+		{
+			dynamic_cast<Cylinder*>(ListOfShapes[i])->~Cylinder();
+		}
+	}
+
+	ListOfShapes.clear();
+
+	//InitializeTestEnviroment();
+	ConstructBoard();
+}
+
 void Game::SimulationLoop()
 {
 	// calculate dt based on the simulation loop rate using a timer
@@ -317,7 +362,7 @@ void Game::SimulationLoop()
 	UpdateObjectPhysics();
 
 	//Last step of physics simulation where we unstuck the objects that penetrated
-	//CorrectObjectSinking();
+	CorrectObjectSinking();
 }
 
 
@@ -328,7 +373,7 @@ void Game::CalculateObjectPhysics()
 	{
 		if(shape->GetName() == "Sphere")
 		{
-			dynamic_cast<Sphere*>(shape)->CalculatePhysics(0.016f); //TODO, variable
+			dynamic_cast<Sphere*>(shape)->CalculatePhysics(TimeStep); 
 		}
 		
 	}
@@ -409,49 +454,60 @@ void Game::CorrectObjectSinking()
 	for (int collision = 0; collision < m_manifold->GetNumPoints(); ++collision)
 	{
 		ManifoldPoint &point = m_manifold->GetPoint(collision);
-
-		float depth = fmax(point.penetration, 0.0f);
+		float depth = fmax(point.penetration + 0.02f, 0.0f);
 		if(point.contactID1->GeometricType == 0 && point.contactID2->GeometricType == 0)
 		{
+			if(dynamic_cast<Sphere*>(point.contactID1)->m_isSleeping)
+			{
+				continue;
+			}
+
 			float m1 = dynamic_cast<Sphere*>(point.contactID1)->InvertMass();
 			float m2 = dynamic_cast<Sphere*>(point.contactID2)->InvertMass();
 			float scalar = depth / (m1 + m2);
 
-			Vector3 correction = point.contactNormal * scalar * 0.4f;//TODO:Linear projection percent, make visible variable
+			Vector3 correction = point.contactNormal * scalar * DepenetrationValue;
 
 			Vector3 CorrectionSphere1 = point.contactID1->GetPos() - correction * m1;
 			point.contactID1->SetPos(CorrectionSphere1.x , CorrectionSphere1.y, CorrectionSphere1.z);
 			
-			/*Vector3 CorrectionSphere2 = point.contactID2->GetPos() - correction * m2;
-			point.contactID2->SetPos(CorrectionSphere2.x, CorrectionSphere2.y, CorrectionSphere2.z);*/ //TODO: Have another look at this, may be broken, maybe we need to keep this values with us until next update frame and make a sum
+			//Vector3 CorrectionSphere2 = point.contactID2->GetPos() - correction * m2;
+			//point.contactID2->SetPos(CorrectionSphere2.x, CorrectionSphere2.y, CorrectionSphere2.z); //TODO: Have another look at this, may be broken, maybe we need to keep this values with us until next update frame and make a sum
 		}
 
 		if(point.contactID1->GeometricType == 0 && point.contactID2->GeometricType == 1)
 		{
+			if (dynamic_cast<Sphere*>(point.contactID1)->m_isSleeping)
+			{
+				continue;
+			}
+
 			float m1 = dynamic_cast<Sphere*>(point.contactID1)->InvertMass();
 			float scalar = depth / (m1);
 
-			Vector3 correction = point.contactNormal * scalar * 0.4f;//TODO:Linear projection percent, make visible variable
+			Vector3 correction = point.contactNormal * scalar * DepenetrationValue;
 
 			Vector3 CorrectionSphere1 = point.contactID1->GetPos() + correction * m1;
 			point.contactID1->SetPos(CorrectionSphere1.x, CorrectionSphere1.y, CorrectionSphere1.z);
 
 		}
 
-		//if (point.contactID1->GeometricType == 0 && point.contactID2->GeometricType == 2)
-		//{
-		//	float m1 = dynamic_cast<Sphere*>(point.contactID1)->InvertMass();
-		//	float m2 = dynamic_cast<Cylinder*>(point.contactID2)->InvertMass();
-		//	float scalar = depth / (m1 + m2);
+		if (point.contactID1->GeometricType == 0 && point.contactID2->GeometricType == 2)
+		{
+			if (dynamic_cast<Sphere*>(point.contactID1)->m_isSleeping)
+			{
+				continue;
+			}
 
-		//	Vector3 correction = point.contactNormal * scalar * 0.4f;//TODO:Linear projection percent, make visible variable
+			float m1 = dynamic_cast<Sphere*>(point.contactID1)->InvertMass();
+			float m2 = dynamic_cast<Cylinder*>(point.contactID2)->InvertMass();
+			float scalar = depth / (m1 + m2);
 
-		//	Vector3 CorrectionSphere1 = point.contactID1->GetPos() - correction * m1;
-		//	point.contactID1->SetPos(CorrectionSphere1.x, CorrectionSphere1.y, CorrectionSphere1.z);
+			Vector3 correction = point.contactNormal * scalar * DepenetrationValue;//TODO:Linear projection percent, make visible variable
 
-		//	/*Vector3 CorrectionSphere2 = point.contactID2->GetPos() - correction * m2;
-		//	point.contactID2->SetPos(CorrectionSphere2.x, CorrectionSphere2.y, CorrectionSphere2.z);*/ //TODO: Have another look at this, may be broken, maybe we need to keep this values with us until next update frame and make a sum
-		//}
+			Vector3 CorrectionSphere1 = point.contactID1->GetPos() + correction * m1;
+			point.contactID1->SetPos(CorrectionSphere1.x, CorrectionSphere1.y, CorrectionSphere1.z);
+		}
 	}
 }
 
@@ -507,6 +563,39 @@ void Game::KeyboardResponse(const char key)
 	if (key == 'D')
 	{
 		eye.x += 10;
+	}
+	if(key == 'P')
+	{
+		DepenetrationValue += 0.1f;
+	}
+	if(key == 'L')
+	{
+		DepenetrationValue -= 0.1f;
+	}
+	if(key == 'T')
+	{
+		TimeStep += 0.001f;
+	}
+	if(key == 'F')
+	{
+		TimeStep -= 0.001f;
+	}
+	if(key == 'O')
+	{
+		SleepThreshold += 0.01f;
+	}
+	if(key == 'K')
+	{
+		SleepThreshold -= 0.01f;
+	}
+
+	if(key == 'R')
+	{
+		Restart();
+	}
+	if(key == '1')
+	{
+		
 	}
 }
 

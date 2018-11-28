@@ -2,7 +2,7 @@
 #include "Rotor3f.h"
 
 
-Cube::Cube(void) :Shape(), m_size(1), m_width(1), m_height(1), m_length(1), m_mass(1), m_friction(0.5f), m_restitution(1.5f)
+Cube::Cube(void) :Shape(), m_size(1), m_width(1), m_height(1), m_length(1), m_mass(1), m_friction(0.7f), m_restitution(0.8f)
 {
 	CalculatePoints();
 	DefineInvTensor();

@@ -10,7 +10,7 @@
 #define GRAVITY_CONST Vector3(0.0f, -80.91f, 0.0f)
 //#define GRAVITY_CONST Vector3(0.0f, 0, 0.0f)
 
-Sphere::Sphere() : Shape(), m_mass(1), m_radius(5), m_friction(0.5f), m_restitution(1.5f)
+Sphere::Sphere() : Shape(), m_mass(1), m_radius(5), m_friction(0.7f), m_restitution(1.8f), m_sleepThreshold(0.01f), m_isSleeping(false)
 {
 	DefineInvTensor();
 	
@@ -72,7 +72,12 @@ void Sphere::SetRadius(float radius)
 //Verlet integration
 void Sphere::CalculatePhysics(float dt)
 {
-	float airResistance = 1.0f; //TODO: change
+	if(m_isSleeping)
+	{
+		return;
+	}
+
+	float airResistance = 0.98f; //TODO: change
 
 	//Position
 	Vector3 force = GRAVITY_CONST * m_mass;
@@ -328,16 +333,20 @@ void Sphere::ResetPos()
 
 void Sphere::Update()
 {
-	if(m_newVelocity.LengthSquared() < 0.01f)
+	if(m_newVelocity.LengthSquared() < m_sleepThreshold)
 	{
 		m_velocity *= 0;
 		m_newVelocity *= 0;
+		m_angularVelocity *= 0;
+		m_newAngularVelocity *= 0;
+		m_isSleeping = true;
 		return;
 	}
 	m_velocity = m_newVelocity;
 	m_angularVelocity = m_newAngularVelocity;
 	SetPos(m_newPos.x, m_newPos.y, m_newPos.z);
 	SetRot(m_newRot.x, m_newRot.y, m_newRot.z);
+	m_isSleeping = false;
 }
 
 void Sphere::CollisionResponseWithSphere(Sphere &one, Sphere &two, Vector3 colNormal, Vector3 colPoint)
@@ -845,13 +854,19 @@ void Sphere::Render() const
 		glRotatef(degreeX, 1, 0, 0);
 		glRotatef(degreeY, 0, 1, 0);
 		glRotatef(degreeZ, 0, 0, 1);
-		glColor3d(1, 0, 0); // Here to change Color
+		if (m_isSleeping)
+		{
+			glColor3d(0, 1, 0);
+		}
+		else{
+			glColor3d(1, 1, 0);
+		}
 		glBindTexture(GL_TEXTURE_2D, GetTexture());               // Select Our Texture, Maybe bad for performance
 		GLUquadric *quadric = gluNewQuadric();
 		gluQuadricDrawStyle(quadric, GLU_FILL);
 		gluQuadricTexture(quadric, GL_TRUE); 
 		gluQuadricNormals(quadric, GLU_SMOOTH);
-		gluSphere(quadric, m_radius, 20, 20);
+		gluSphere(quadric, m_radius-0.05f, 20, 20);
 		
 	glPopMatrix();
 }

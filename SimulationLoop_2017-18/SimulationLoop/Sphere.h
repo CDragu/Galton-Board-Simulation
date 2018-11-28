@@ -56,8 +56,10 @@ public:
 	float m_mass;
 	float m_radius;
 
+	float m_sleepThreshold;
 	float m_friction;
 	float m_restitution; //coefficient of restitution, inverse of elasticity, how much energy remains after one collision
+	bool m_isSleeping;
 
 	Vector3 m_angularVelocity;
 	Vector3 m_newAngularVelocity;
@@ -68,7 +70,5 @@ public:
 	Vector3 m_newRot;
 	Vector3 m_velocity;
 	Vector3 m_newVelocity;
-	
-	
 	TwBar* BarObj;
 };
