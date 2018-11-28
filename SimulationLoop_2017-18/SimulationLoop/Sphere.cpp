@@ -311,10 +311,13 @@ void Sphere::CollisionWithCylinder(Cylinder* cylinder, ContactManifold* contactM
 	ManifoldPoint mp;
 	mp.contactID1 = this;
 	mp.contactID2 = cylinder;
-	Vector3 x = pos2 - pos1;
+	Vector3 x = pos1 - pos2;
+	x.z = 0;
 	x.Normalize(mp.contactNormal);
 	mp.penetration = penetration;
-	mp.contactPoint = (pos1 + pos2) / 2.0f;
+	auto pos2Midline = pos2;
+	pos2Midline.z = pos1.z;
+	mp.contactPoint = (pos1 + pos2Midline) / 2.0f;
 	contactManifold->Add(mp);
 }
 
@@ -632,17 +635,11 @@ void Sphere::CollisionResponseWithCube(Sphere& one, Cube& two, Vector3 colNormal
 
 	one.SetNewVel(one.m_newVelocity - TangentOfImpulse * massOne);
 
-	//two.SetNewVel(one.m_newVelocity + TangentOfImpulse * massTwo);
-
 	//Angular velocity
 	{
 		Vector3 aux1 = onePointOfContact.Cross(TangentOfImpulse);
 		Vector3 aux2 = aux1.Transform(aux1, tensor1);
 		one.m_newAngularVelocity = one.m_angularVelocity - aux2;
-
-		/*Vector3 aux3 = twoPointOfContact.Cross(TangentOfImpulse);
-		Vector3 aux4 = aux3.Transform(aux3, tensor2);
-		two.m_newAngularVelocity = two.m_angularVelocity + aux4;*/
 	}
 }
 
@@ -657,6 +654,7 @@ void Sphere::CollisionResponseWithCylinder(Sphere& one, Cylinder& two, Vector3 c
 
 	Vector3 onePointOfContact = colPoint - one.m_pos;
 	Vector3 twoPointOfContact = colPoint - two.m_pos;
+	twoPointOfContact.z = 0;
 
 	Matrix tensor1 = m_InvTensor;
 	Matrix tensor2 = two.m_InvTensor;
@@ -674,8 +672,8 @@ void Sphere::CollisionResponseWithCylinder(Sphere& one, Cylinder& two, Vector3 c
 
 	}
 	colNormal.Normalize();
-
-	float DotRelativeVelocity = relativeVelocity.Dot(colNormal);
+	//colNormal = -1 * colNormal;
+	float DotRelativeVelocity = relativeVelocity.Dot(-colNormal);
 	if (DotRelativeVelocity > 0.0f) {
 		return; //If the objects are moving apart then they can not be colliding
 	}
@@ -684,6 +682,7 @@ void Sphere::CollisionResponseWithCylinder(Sphere& one, Cylinder& two, Vector3 c
 	float j = (-(1.0f + e) * DotRelativeVelocity);//Calculating the magnitude of collision
 
 	{
+		//Calculating the bottom part of the function
 		float SumMass = massOne + massTwo;
 		Vector3 aux1 = onePointOfContact.Cross(colNormal);
 		Vector3 aux2 = aux1.Transform(aux1, tensor1);

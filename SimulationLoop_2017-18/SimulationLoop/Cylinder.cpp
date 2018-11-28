@@ -3,7 +3,7 @@
 #include "TextureLoader.h"
 
 
-Cylinder::Cylinder(void) :Shape(), m_radius(5), m_height(2){}
+Cylinder::Cylinder(void) :Shape(), m_radius(5), m_height(2), m_friction(0.5f), m_restitution(1.5f) {}
 Cylinder::~Cylinder()
 = default;
 
@@ -30,14 +30,14 @@ float Cylinder::GetHeight() const
 void Cylinder::Render() const
 {
 	glPushMatrix();
-	glTranslatef(GetPos().x, GetPos().y, GetPos().z);
-	glColor3d(1, 0, 1); // Here to change Color
-	glBindTexture(GL_TEXTURE_2D, GetTexture());               // Select Our Texture
-	GLUquadric *quadric = gluNewQuadric();
-	gluQuadricDrawStyle(quadric, GLU_FILL);
-	gluQuadricTexture(quadric, GL_TRUE);
-	gluQuadricNormals(quadric, GLU_SMOOTH);
-	gluCylinder(quadric, m_radius, m_radius, m_height, 20, 20);
+		glTranslatef(GetPos().x, GetPos().y, GetPos().z);
+		glColor3d(1, 0, 1); // Here to change Color
+		glBindTexture(GL_TEXTURE_2D, GetTexture());               // Select Our Texture
+		GLUquadric *quadric = gluNewQuadric();
+		gluQuadricDrawStyle(quadric, GLU_FILL);
+		gluQuadricTexture(quadric, GL_TRUE);
+		gluQuadricNormals(quadric, GLU_SMOOTH);
+		gluCylinder(quadric, m_radius, m_radius, m_height, 20, 20);
 	glPopMatrix();
 }
 

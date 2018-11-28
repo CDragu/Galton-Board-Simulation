@@ -39,6 +39,7 @@ public:
 	std::vector<Node*> ListOfNodes;
 	
 	Vector3 eye;
+	Vector3 lookAt;
 	ContactManifold *m_manifold;
 	LARGE_INTEGER start, end, frequency;
 
