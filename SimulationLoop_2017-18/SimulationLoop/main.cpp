@@ -202,8 +202,8 @@ int WINAPI WinMain( HINSTANCE hinstance,
 		0,
 		0,
 		//Set the size of the window to the size of the screen 
-		600,
-		600,
+		1200,
+		1200,
 		//GetSystemMetrics(SM_CXSCREEN),
 		//GetSystemMetrics(SM_CYSCREEN),
 		NULL,	   // handle to parent 
@@ -212,7 +212,7 @@ int WINAPI WinMain( HINSTANCE hinstance,
 		NULL)))	// creation parms
 		return(0);
 
-	InitializeOpenGL(hwnd, 600, 600);
+	InitializeOpenGL(hwnd, 1200, 1200);
 
 	TwInit(TW_OPENGL, NULL);
 	RECT r;

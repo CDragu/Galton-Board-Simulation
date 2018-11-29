@@ -21,11 +21,12 @@ public:
 	void CreateCylinder(Vector3 origin);
 	void ConstructBoard();
 	void Restart();
+	void AddBall();
 	void KeyboardResponse(const char key);
 	void SimulationLoop();
 	void CalculateObjectPhysics();
-	void DynamicCollisionDetection();
-	void DynamicCollisionResponse();
+	void CollisionDetection();
+	void CollisionResponse();
 	void UpdateObjectPhysics();
 	void CorrectObjectSinking();
 	void Render();
@@ -36,10 +37,7 @@ public:
 	int	  m_fps;
 	float m_previousTime;
 	std::vector<Shape*> ListOfShapes;
-	
-	//Experimental TODO: Remove if not working
-	std::vector<Node*> ListOfNodes;
-	
+
 	Vector3 eye;
 	Vector3 lookAt;
 	ContactManifold *m_manifold;
@@ -50,5 +48,6 @@ public:
 	float DepenetrationValue;
 	float TimeStep;
 	float SleepThreshold;
+	float SizeOfBalls;
 };
 

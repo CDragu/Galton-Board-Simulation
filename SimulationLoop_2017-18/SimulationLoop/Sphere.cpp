@@ -130,6 +130,10 @@ void Sphere::CollisionWithSphere(Sphere* sphere2, ContactManifold* contactManifo
 void Sphere::CollisionWithCubeWithAxisSeparation(Cube* cube, ContactManifold* contact_manifold)
 {
 	Vector3 center = m_pos;
+	if(center.Distance(center , cube->m_pos) > 100 * m_radius)
+	{
+		return;
+	}
 	Matrix inverseDX = DirectX::XMMatrixInverse(nullptr, cube->transform);
 	Vector3 ballInCubeSpace = Vector3::Transform(center, inverseDX);
 	Vector3 halfSize = Vector3(cube->m_length/2, cube->m_height/2, cube->m_width/2);
@@ -179,122 +183,6 @@ void Sphere::CollisionWithCubeWithAxisSeparation(Cube* cube, ContactManifold* co
 
 	//Todo: solving penetration fast
 	//m_pos += contactNormal * mp.penetration;
-}
-
-void Sphere::CollisionWithCube(Cube* cube, ContactManifold* contactManifold)
-{
-	//Vector3f PointOfSphere = this->GetNewPos() + ((this->GetNewPos() - cube->GetPos()).normalise())*this->GetRadius();
-	const Vector3 SphereCenter = this->GetNewPos();
-	Vector3 Normal(0, 1, 0);
-
-	//Calculating the orthonormal vectors of our box
-	Vector3 rotationX(1, 0, 0);
-	if(cube->GetRot().x != 0)
-	{
-		Rotor3 *rotx = new Rotor3(cube->GetRot().x, Bivector3(1, 0, 0));
-		rotationX = rotx->rotate(rotationX);
-		Normal = rotx->rotate(Normal);
-	}else
-	{
-		rotationX = Vector3(0, 0, 0);
-	}
-	
-	
-	Vector3 rotationY(0, 1, 0);
-	if(cube->GetRot().y != 0 )
-	{
-		Rotor3 *roty = new Rotor3(cube->GetRot().y, Bivector3(0, 1, 0));
-		rotationY = roty->rotate(rotationY);
-		Normal = roty->rotate(Normal);
-	}else
-	{
-		rotationY = Vector3(0, 0, 0);
-	}
-	
-
-	Vector3 rotationZ(0, 0, 1);
-	if(cube->GetRot().z != 0)
-	{
-		Rotor3 *rotz = new Rotor3(cube->GetRot().z, Bivector3(0, 0, 1));
-		rotationZ = rotz->rotate(rotationZ);
-		Normal = rotz->rotate(Normal);
-	}else
-	{
-		rotationZ = Vector3(0, 0, 0);
-	}
-	
-	//rotationZ = rotationZ + cube->GetPos();
-
-	//Checking collision
-	auto D = (SphereCenter - cube->GetPos());
-	//auto D = P - cube->GetPos();
-	const auto S0 = rotationX.Dot(D);
-	const auto S1 = rotationY.Dot(D);
-	const auto S2 = rotationZ.Dot(D);
-
-	const auto e0 = cube->GetLength() / 2.0f;
-	const auto e1 = cube->GetHeight() / 2.0f;
-	const auto e2 = cube->GetWidth() / 2.0f;
-
-	if(S0 <= -e0)
-	{
-		D = D + e0 * rotationX;
-	}else if( S0 < e0)
-	{
-		D = D - S0 * rotationX;
-	}else
-	{
-		D = D - e0 * rotationX;
-	}
-
-
-	if (S1 <= -e1)
-	{
-		D = D + e1 * rotationY;
-	}
-	else if (S1 < e1)
-	{
-		D = D - S1 * rotationY;
-	}
-	else
-	{
-		D = D - e1 * rotationY;
-	}
-
-
-	if (S2 <= -e2)
-	{
-		D = D + e2 * rotationZ;
-	}
-	else if (S2 < e2)
-	{
-		D = D - S2 * rotationZ;
-	}
-	else
-	{
-		D = D - e2 * rotationZ;
-	}
-
-	//Calculating distance
-	if(sqrt(D.Dot(D)) < this->GetRadius())
-	{
-		auto n = sqrt(D.Dot(D));
-		D = Vector3(0,0,0);
-
-
-		ManifoldPoint mp;
-		mp.contactID1 = this;
-		mp.contactID2 = cube;
-		(Normal).Normalize(mp.contactNormal);
-		contactManifold->Add(mp);
-	}else
-	{
-		auto n = sqrt(D.Dot(D));
-		//std::cout << std::to_string(n) << std::endl;
-		D = Vector3(0, 0, 0);
-	}
-
-
 }
 
 void Sphere::CollisionWithCylinder(Cylinder* cylinder, ContactManifold* contactManifold)
