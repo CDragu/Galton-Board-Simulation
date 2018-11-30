@@ -8,7 +8,7 @@
 #include "Cylinder.h"
 #include <AntTweakBar.h>
 
-Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0), DepenetrationValue(0.85f), TimeStep(0.008f), SleepThreshold(0.05f), SizeOfBalls(2.0f)
+Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0), DepenetrationValue(0.85f), TimeStep(0.008f), SleepThreshold(0.04f), SizeOfBalls(2.0f)
 {
 	Paused = true;
 	NumberOfBalls = 0;
@@ -26,8 +26,6 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0), DepenetrationValue(0.85f), 
 	TwAddVarRW(Bar, "Velocity Magnitude: ", TW_TYPE_FLOAT, &TotalForce, "");
 	TwAddVarRW(Bar, "Size of Balls(T, B): ", TW_TYPE_FLOAT, &SizeOfBalls, "");
 	
-	//TwAddVarRW(Bar, "Depenetration Value: ", TW_TYPE_FLOAT, &DepenetrationValue, "");
-	//TwAddVarRW(Bar, "Sleep Threshold: ", TW_TYPE_FLOAT, &SleepThreshold, "");
 	ImpulseIteration = 6; // how many times we do the physics calculation for collision response, helps with jitter and objects not sinking
 
 	m_manifold = new ContactManifold();
@@ -117,7 +115,6 @@ void Game::InitializeTestEnviroment()
 	m_cube2->SetLength(100);
 	m_cube2->SetRot(0, 0, 0);
 	m_cube2->SetWidth(100);
-	//m_cube2->SetRot(-3.14f / 4.0f, 0, 0);
 	m_cube2->SetRot(0, 0, 0);
 	m_cube2->GeometricType = 1;
 	m_cube2->m_mass = 20000;
@@ -570,10 +567,11 @@ void Game::KeyboardResponse(const char key)
 	}
 	if (key == 'P')
 	{
-		if(Paused)
+		if (Paused)
 		{
 			Paused = false;
-		}else
+		}
+		else
 		{
 			Paused = true;
 		}
@@ -588,32 +586,32 @@ void Game::KeyboardResponse(const char key)
 		TimeStep -= 0.001f;
 	}
 
-	if(key == 'I')
+	if (key == 'I')
 	{
 		Friction += 0.01f;
 	}
-	if(key == 'K')
+	if (key == 'K')
 	{
 		Friction -= 0.01f;
 	}
-	if(key == 'T')
+	if (key == 'T')
 	{
 		SizeOfBalls += 0.01f;
 	}
-	if(key == 'B')
+	if (key == 'B')
 	{
 		SizeOfBalls -= 0.01f;
 	}
-	if(key == 'O')
+	if (key == 'O')
 	{
 		Elasticity += 0.01f;
 	}
-	if(key == 'L')
+	if (key == 'L')
 	{
 		Elasticity -= 0.01f;
 	}
 
-	if(key == 'S')
+	if (key == 'S')
 	{
 		eye.y -= 10;
 		lookAt.y -= 10;
@@ -644,20 +642,6 @@ void Game::KeyboardResponse(const char key)
 		eye.z += 10;
 		lookAt.z += 10;
 	}
-	
-	//if(key == 'L')
-	//{
-	//	DepenetrationValue -= 0.1f;
-	//}
-	//
-	//if(key == 'O')
-	//{
-	//	SleepThreshold += 0.01f;
-	//}
-	//if(key == 'K')
-	//{
-	//	SleepThreshold -= 0.01f;
-	//}
 }
 
 
