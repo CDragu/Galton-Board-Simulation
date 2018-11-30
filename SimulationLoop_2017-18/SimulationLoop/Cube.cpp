@@ -183,21 +183,21 @@ void Cube::Render() const
 		glVertex3d(m_points[3].x, m_points[3].y, m_points[3].z);
 	glEnd();
 
-	//Face 2, pointing towards -z
+	//Face 2, pointing towards -y
 	glBegin(GL_QUADS);
 	glColor3d(1, 1, 1);
-		glVertex3d(m_points[3].x, m_points[3].y, m_points[3].z);
-		glVertex3d(m_points[2].x, m_points[2].y, m_points[2].z);
-		glVertex3d(m_points[6].x, m_points[6].y, m_points[6].z);
+		glVertex3d(m_points[4].x, m_points[4].y, m_points[4].z);
 		glVertex3d(m_points[7].x, m_points[7].y, m_points[7].z);
+		glVertex3d(m_points[6].x, m_points[6].y, m_points[6].z);
+		glVertex3d(m_points[5].x, m_points[5].y, m_points[5].z);
 	glEnd();
 
 	glBegin(GL_LINE_LOOP);
 	glColor3d(1, 0, 1);
-		glVertex3d(m_points[3].x, m_points[3].y, m_points[3].z);
-		glVertex3d(m_points[2].x, m_points[2].y, m_points[2].z);
-		glVertex3d(m_points[6].x, m_points[6].y, m_points[6].z);
+		glVertex3d(m_points[4].x, m_points[4].y, m_points[4].z);
 		glVertex3d(m_points[7].x, m_points[7].y, m_points[7].z);
+		glVertex3d(m_points[6].x, m_points[6].y, m_points[6].z);
+		glVertex3d(m_points[5].x, m_points[5].y, m_points[5].z);
 	glEnd();
 
 	//Face 3, pointing towards +x

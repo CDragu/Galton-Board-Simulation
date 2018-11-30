@@ -13,7 +13,6 @@
 Sphere::Sphere() : Shape(), m_mass(1), m_radius(5), m_friction(0.7f), m_restitution(1.8f), m_sleepThreshold(0.01f), m_isSleeping(false)
 {
 	DefineInvTensor();
-	
 	/*std::string x = std::to_string(this->countID);
 	BarObj = TwNewBar(x.c_str());
 	TwAddSeparator(BarObj, NULL, " group='Pos' ");
@@ -69,7 +68,7 @@ void Sphere::SetRadius(float radius)
 	m_radius = radius;
 }
 
-//Verlet integration
+//Euler integration
 void Sphere::CalculatePhysics(float dt)
 {
 	if(m_isSleeping)
@@ -77,28 +76,33 @@ void Sphere::CalculatePhysics(float dt)
 		return;
 	}
 
-	float airResistance = 0.98f; //TODO: change
+	float airResistance = 0.98f;
 
-	//Position
+	//Calculating the force
 	Vector3 force = GRAVITY_CONST * m_mass;
 
+	//Calculating Acceleration 
 	Vector3 accel = force * InvertMass();
-	
-	m_newVelocity = m_velocity + (accel * dt);
 
-	m_newVelocity = m_newVelocity * airResistance;
+	//Calculating the new Velocity
+	m_newVelocity = (m_velocity + (accel * dt)) * airResistance;
 	
-	
-	//Roation
+	//Calculating the Angular Acceleration
 	Vector3 angleAccel = m_torque.Transform(m_torque, m_InvTensor);
-	
-	m_newAngularVelocity = m_angularVelocity + angleAccel * dt;
-	
-	m_newAngularVelocity = m_newAngularVelocity * airResistance;
 
-	// Integrate old velocity to get the new position (using Verlet)
+	//Calculating the Angular Velocity
+	m_newAngularVelocity = (m_angularVelocity + angleAccel * dt) * airResistance;
+
+	// Integrate old velocity to get the new position (using Euler)
 	m_newPos = GetPos() + (m_newVelocity * dt);
+	// Integrate old rotation to get the new rotation (using Euler)
 	m_newRot = m_rot + (m_newAngularVelocity * dt);
+
+	//Tried integrating Verlet
+	//m_newPos = m_pos + dt * m_velocity + ((dt*dt) / 2)*accel;
+	//m_newRot = (m_rot * (dt * m_angularVelocity + ((dt*dt) / 2)*m_torque)).Cross(m_rot);
+	
+	
 }
 
 void Sphere::CollisionWithSphere(Sphere* sphere2, ContactManifold* contactManifold)

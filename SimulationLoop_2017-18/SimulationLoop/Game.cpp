@@ -1,5 +1,5 @@
 #include "Game.h"
-#include <gl\gl.h>                                // Header File For The OpenGL32 Library
+#include <gl\gl.h>                                // Header File For The OpenGL32 Library from 1998
 #include <gl\GLU.h>
 #include <wincon.h>
 #include <iostream>
@@ -10,20 +10,21 @@
 
 Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0), DepenetrationValue(0.85f), TimeStep(0.008f), SleepThreshold(0.05f), SizeOfBalls(2.0f)
 {
+	Paused = true;
 	NumberOfBalls = 0;
 	Elasticity = 0.8f;
 	Friction = 0.7f;
 	Bar = TwNewBar("Bar");
 	TwDefine(("Bar  position='0 0' "));
-	TwDefine(("Bar  size='200 150' "));
+	TwDefine(("Bar  size='300 150' "));
 	TwDefine("Bar refresh=0.1 ");
 	TwAddVarRW(Bar, "FPS", TW_TYPE_INT32, &m_fps, "");
-	TwAddVarRW(Bar, "Number of Balls: ", TW_TYPE_FLOAT, &NumberOfBalls, "");
-	TwAddVarRW(Bar, "Elasticity: ", TW_TYPE_FLOAT, &Elasticity, "");
-	TwAddVarRW(Bar, "Friction: ", TW_TYPE_FLOAT, &Friction, "");
+	TwAddVarRW(Bar, "Number of Balls(1): ", TW_TYPE_FLOAT, &NumberOfBalls, "");
+	TwAddVarRW(Bar, "Elasticity(O, L): ", TW_TYPE_FLOAT, &Elasticity, "");
+	TwAddVarRW(Bar, "Friction(I, K): ", TW_TYPE_FLOAT, &Friction, "");
+	TwAddVarRW(Bar, "Time Step(I, J): ", TW_TYPE_FLOAT, &TimeStep, "");
 	TwAddVarRW(Bar, "Velocity Magnitude: ", TW_TYPE_FLOAT, &TotalForce, "");
-	TwAddVarRW(Bar, "Time Step: ", TW_TYPE_FLOAT, &TimeStep, "");
-	TwAddVarRW(Bar, "Size of Balls: ", TW_TYPE_FLOAT, &SizeOfBalls, "");
+	TwAddVarRW(Bar, "Size of Balls(T, B): ", TW_TYPE_FLOAT, &SizeOfBalls, "");
 	
 	//TwAddVarRW(Bar, "Depenetration Value: ", TW_TYPE_FLOAT, &DepenetrationValue, "");
 	//TwAddVarRW(Bar, "Sleep Threshold: ", TW_TYPE_FLOAT, &SleepThreshold, "");
@@ -34,7 +35,8 @@ Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0), DepenetrationValue(0.85f), 
 	QueryPerformanceFrequency(&frequency);
 	QueryPerformanceCounter(&start);
 
-	InitializeTestEnviroment();
+	ConstructBoard();
+	//InitializeTestEnviroment();
 }
 
 Game::~Game(void)
@@ -161,6 +163,8 @@ void Game::CreateBox(Vector3 origin, float height, float length, float width)
 	bottom->m_mass = 20000;
 	bottom->CalculatePoints();
 	bottom->DefineInvTensor();
+	bottom->m_restitution = Elasticity + 1;
+	bottom->m_friction = Friction;
 	ListOfShapes.push_back(bottom);
 }
 
@@ -180,6 +184,8 @@ void Game::CreateBox(Vector3 origin, float height, float length, float width, Ve
 	bottom->m_mass = 20000;
 	bottom->CalculatePoints();
 	bottom->DefineInvTensor();
+	bottom->m_restitution = Elasticity + 1;
+	bottom->m_friction = Friction;
 	ListOfShapes.push_back(bottom);
 }
 
@@ -194,6 +200,8 @@ void Game::CreateCylinder(Vector3 origin)
 	m_cylinder->SetHeight(50.0f);
 	m_cylinder->m_mass = 20000;
 	m_cylinder->GeometricType = 2;
+	m_cylinder->m_restitution = Elasticity + 1;
+	m_cylinder->m_friction = Friction;
 	ListOfShapes.push_back(m_cylinder);
 }
 
@@ -202,7 +210,7 @@ void Game::ConstructBoard() {
 	Vector3 origin(0, 20, 0);
 	Vector3 originRotation(0, 0, 0);
 	eye = Vector3(0, 400, 300);
-	lookAt = Vector3(0, 200, 0);
+	lookAt = Vector3(0, 400, 0);
 
 	//Create Balls in right pos
 	for (int i = 0; i < 21; i++)
@@ -224,6 +232,7 @@ void Game::ConstructBoard() {
 			m_sphere->m_restitution = Elasticity + 1;
 			m_sphere->m_friction = Friction;
 			m_sphere->DefineInvTensor();
+			m_sphere->m_newPos = m_sphere->m_pos;
 			ListOfShapes.push_back(m_sphere);
 			NumberOfBalls++;
 		}
@@ -233,13 +242,13 @@ void Game::ConstructBoard() {
 	CreateBox(origin, 22, 12, 0.1f);
 
 	//Create Right Side Of Box
-	CreateBox(origin + Vector3(6, 0, 2), 22, 1, 4);
+	CreateBox(origin + Vector3(6, 0, 2), 22, 1.12f, 4);
 
 	//Create Left Side Of Box
-	CreateBox(origin + Vector3(-6, 0, 2), 22, 1, 4);
+	CreateBox(origin + Vector3(-6, 0, 2), 22, 1.12f, 4);
 
 	//Create Down side of box
-	CreateBox(origin + Vector3(0, -11, 2), 1, 12, 4);
+	CreateBox(origin + Vector3(0, -13, 2), 4, 12, 4);
 
 	//Create LeftSide of Top
 	CreateBox(origin + Vector3(-3.5f, 11, 2), 1, 4, 5);
