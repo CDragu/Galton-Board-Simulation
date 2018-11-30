@@ -10,16 +10,23 @@
 
 Game::Game(HDC hdc) : m_hdc(hdc), m_previousTime(0), DepenetrationValue(0.85f), TimeStep(0.008f), SleepThreshold(0.05f), SizeOfBalls(2.0f)
 {
+	NumberOfBalls = 0;
+	Elasticity = 0.8f;
+	Friction = 0.7f;
 	Bar = TwNewBar("Bar");
 	TwDefine(("Bar  position='0 0' "));
-	TwDefine(("Bar  size='200 130' "));
+	TwDefine(("Bar  size='200 150' "));
 	TwDefine("Bar refresh=0.1 ");
 	TwAddVarRW(Bar, "FPS", TW_TYPE_INT32, &m_fps, "");
-	TwAddVarRW(Bar, "Velocity Sum: ", TW_TYPE_FLOAT, &TotalForce, "");
-	TwAddVarRW(Bar, "Depenetration Value: ", TW_TYPE_FLOAT, &DepenetrationValue, "");
-	TwAddVarRW(Bar, "Sleep Threshold: ", TW_TYPE_FLOAT, &SleepThreshold, "");
+	TwAddVarRW(Bar, "Number of Balls: ", TW_TYPE_FLOAT, &NumberOfBalls, "");
+	TwAddVarRW(Bar, "Elasticity: ", TW_TYPE_FLOAT, &Elasticity, "");
+	TwAddVarRW(Bar, "Friction: ", TW_TYPE_FLOAT, &Friction, "");
+	TwAddVarRW(Bar, "Velocity Magnitude: ", TW_TYPE_FLOAT, &TotalForce, "");
 	TwAddVarRW(Bar, "Time Step: ", TW_TYPE_FLOAT, &TimeStep, "");
 	TwAddVarRW(Bar, "Size of Balls: ", TW_TYPE_FLOAT, &SizeOfBalls, "");
+	
+	//TwAddVarRW(Bar, "Depenetration Value: ", TW_TYPE_FLOAT, &DepenetrationValue, "");
+	//TwAddVarRW(Bar, "Sleep Threshold: ", TW_TYPE_FLOAT, &SleepThreshold, "");
 	ImpulseIteration = 6; // how many times we do the physics calculation for collision response, helps with jitter and objects not sinking
 
 	m_manifold = new ContactManifold();
@@ -39,7 +46,10 @@ Game::~Game(void)
 
 void Game::Update()
 {
-	SimulationLoop();
+	if(!Paused)
+	{
+		SimulationLoop();
+	}
 	
 	Render();
 }
@@ -62,7 +72,10 @@ void Game::InitializeTestEnviroment()
 		m_sphere->m_angularVelocity = Vector3(0, 0, 0);
 		m_sphere->DefineInvTensor();
 		m_sphere->m_sleepThreshold = SleepThreshold;
+		m_sphere->m_restitution = Elasticity + 1;
+		m_sphere->m_friction = Friction;
 		ListOfShapes.push_back(m_sphere);
+		NumberOfBalls++;
 	}
 
 	Cube* m_cube3 = new Cube();
@@ -192,7 +205,7 @@ void Game::ConstructBoard() {
 	lookAt = Vector3(0, 200, 0);
 
 	//Create Balls in right pos
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 21; i++)
 	{
 		for (int j = 0; j < 10; j++)
 		{
@@ -208,8 +221,11 @@ void Game::ConstructBoard() {
 			m_sphere->SetName("Sphere");
 			m_sphere->GeometricType = 0;
 			m_sphere->m_sleepThreshold = SleepThreshold;
+			m_sphere->m_restitution = Elasticity + 1;
+			m_sphere->m_friction = Friction;
 			m_sphere->DefineInvTensor();
 			ListOfShapes.push_back(m_sphere);
+			NumberOfBalls++;
 		}
 	}
 
@@ -290,7 +306,7 @@ void Game::Restart()
 			dynamic_cast<Cylinder*>(ListOfShapes[i])->~Cylinder();
 		}
 	}
-
+	NumberOfBalls = 0;
 	ListOfShapes.clear();
 
 	//InitializeTestEnviroment();
@@ -307,7 +323,10 @@ void Game::AddBall()
 	m_sphere->GeometricType = 0;
 	m_sphere->m_sleepThreshold = SleepThreshold;
 	m_sphere->DefineInvTensor();
+	m_sphere->m_restitution = Elasticity + 1;
+	m_sphere->m_friction = Friction;
 	ListOfShapes.insert(ListOfShapes.begin(), m_sphere);
+	NumberOfBalls++;
 }
 
 void Game::SimulationLoop()
@@ -532,67 +551,104 @@ void Game::KeyboardResponse(const char key)
 {
 	std::cout << key << std::endl;
 
-	if(key == 'U')
+	if (key == '1')
 	{
-		SimulationLoop();
+		AddBall();
+	}
+	if (key == 'R')
+	{
+		Restart();
+	}
+	if (key == 'P')
+	{
+		if(Paused)
+		{
+			Paused = false;
+		}else
+		{
+			Paused = true;
+		}
 	}
 
-	if(key == 'W')
-	{
-		eye.z -= 10;
-	}
-	if (key == 'S')
-	{
-		eye.z += 10;
-	}
-	if (key == 'A')
-	{
-		eye.x -= 10;
-	}
-	if (key == 'D')
-	{
-		eye.x += 10;
-	}
-	if(key == 'P')
-	{
-		DepenetrationValue += 0.1f;
-	}
-	if(key == 'L')
-	{
-		DepenetrationValue -= 0.1f;
-	}
-	if(key == 'U')
+	if (key == 'U')
 	{
 		TimeStep += 0.001f;
 	}
-	if(key == 'J')
+	if (key == 'J')
 	{
 		TimeStep -= 0.001f;
 	}
-	if(key == 'O')
+
+	if(key == 'I')
 	{
-		SleepThreshold += 0.01f;
+		Friction += 0.01f;
 	}
 	if(key == 'K')
 	{
-		SleepThreshold -= 0.01f;
+		Friction -= 0.01f;
 	}
 	if(key == 'T')
 	{
 		SizeOfBalls += 0.01f;
 	}
-	if (key == 'B')
+	if(key == 'B')
 	{
 		SizeOfBalls -= 0.01f;
 	}
-	if(key == 'R')
+	if(key == 'O')
 	{
-		Restart();
+		Elasticity += 0.01f;
 	}
-	if(key == '1')
+	if(key == 'L')
 	{
-		AddBall();
+		Elasticity -= 0.01f;
 	}
+
+	if(key == 'S')
+	{
+		eye.y -= 10;
+		lookAt.y -= 10;
+	}
+	if (key == 'W')
+	{
+		eye.y += 10;
+		lookAt.y += 10;
+	}
+	if (key == 'A')
+	{
+		eye.x -= 10;
+		lookAt.x -= 10;
+	}
+	if (key == 'D')
+	{
+		eye.x += 10;
+		lookAt.x += 10;
+	}
+
+	if (key == '&')
+	{
+		eye.z -= 10;
+		lookAt.z -= 10;
+	}
+	if (key == '(')
+	{
+		eye.z += 10;
+		lookAt.z += 10;
+	}
+	
+	//if(key == 'L')
+	//{
+	//	DepenetrationValue -= 0.1f;
+	//}
+	//
+	//if(key == 'O')
+	//{
+	//	SleepThreshold += 0.01f;
+	//}
+	//if(key == 'K')
+	//{
+	//	SleepThreshold -= 0.01f;
+	//}
 }
 
 

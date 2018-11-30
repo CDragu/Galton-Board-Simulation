@@ -557,19 +557,15 @@ void Sphere::CollisionResponseWithCylinder(Sphere& one, Cylinder& two, Vector3 c
 	Matrix tensor2 = two.m_InvTensor;
 
 
-	Vector3 relativeVelocity = (two.m_velocity + two.m_angularVelocity.Cross(twoPointOfContact))
-		- (one.m_velocity + one.m_angularVelocity.Cross(onePointOfContact));
-
-
+	Vector3 relativeVelocity;
 	{
 		auto velocity2 = (two.m_velocity + two.m_angularVelocity.Cross(twoPointOfContact));
 		auto velocity1 = (one.m_velocity + one.m_angularVelocity.Cross(onePointOfContact));
 
 		relativeVelocity = velocity2 - velocity1;
-
 	}
 	colNormal.Normalize();
-	//colNormal = -1 * colNormal;
+	
 	float DotRelativeVelocity = relativeVelocity.Dot(-colNormal);
 	if (DotRelativeVelocity > 0.0f) {
 		return; //If the objects are moving apart then they can not be colliding
@@ -748,6 +744,10 @@ void Sphere::Render() const
 		}
 		else{
 			glColor3d(1, 1, 0);
+		}
+		if(m_angularVelocity.Length() > 0)
+		{
+			glColor3d(0, 1, 1);
 		}
 		glBindTexture(GL_TEXTURE_2D, GetTexture());               // Select Our Texture, Maybe bad for performance
 		GLUquadric *quadric = gluNewQuadric();

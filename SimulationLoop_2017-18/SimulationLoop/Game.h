@@ -49,5 +49,10 @@ public:
 	float TimeStep;
 	float SleepThreshold;
 	float SizeOfBalls;
+	float NumberOfBalls;
+	float Elasticity;
+	float Friction;
+
+	bool Paused;
 };
 
