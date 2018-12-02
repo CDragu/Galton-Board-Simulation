@@ -98,16 +98,6 @@ Matrix Shape::CreateTransformMatrix()
 {
 	//TRS 
 	Matrix p_transform = DirectX::SimpleMath::Matrix::Identity;
-	//Matrix translate = DirectX::SimpleMath::Matrix::CreateTranslation(m_pos);
-	//Matrix rotX =		 DirectX::SimpleMath::Matrix::CreateRotationX(m_rot.z);
-	//Matrix rotY =		 DirectX::SimpleMath::Matrix::CreateRotationY(m_rot.y);
-	//Matrix rotZ =		 DirectX::SimpleMath::Matrix::CreateRotationZ(m_rot.x);
-	//Matrix scale =	 DirectX::SimpleMath::Matrix::CreateScale(m_scale);
-	////p_transform *= rotation.toMatrix3();
-	//Matrix rotMatrix = (rotX * rotY * rotZ);
-	//p_transform = translate * rotX * rotY * rotZ * scale;
-	//rotX * scale * trans;
-
 	p_transform *= DirectX::SimpleMath::Matrix::CreateRotationX(m_rot.z);
 	p_transform *= DirectX::SimpleMath::Matrix::CreateRotationY(m_rot.y);
 	p_transform *= DirectX::SimpleMath::Matrix::CreateRotationZ(m_rot.x);

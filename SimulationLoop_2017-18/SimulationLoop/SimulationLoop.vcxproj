@@ -115,9 +115,6 @@
     <ClCompile Include="main.cpp">
       <DeploymentContent>false</DeploymentContent>
     </ClCompile>
-    <ClCompile Include="PotentialContactManifold.cpp">
-      <DeploymentContent>false</DeploymentContent>
-    </ClCompile>
     <ClCompile Include="Rotor3f.cpp">
       <DeploymentContent>false</DeploymentContent>
     </ClCompile>
@@ -148,9 +145,6 @@
       <DeploymentContent>false</DeploymentContent>
     </ClInclude>
     <ClInclude Include="Game.h">
-      <DeploymentContent>false</DeploymentContent>
-    </ClInclude>
-    <ClInclude Include="PotentialContactManifold.h">
       <DeploymentContent>false</DeploymentContent>
     </ClInclude>
     <ClInclude Include="resource.h">

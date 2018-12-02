@@ -1,6 +1,8 @@
 #include "Rotor3f.h"
 #include <math.h>
 
+//From: http://marctenbosch.com/quaternions/
+
 Bivector3::Bivector3(float b01, float b02, float b12)
 	: b01(b01), b02(b02), b12(b12) {}
 

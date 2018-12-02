@@ -2,7 +2,7 @@
 #include "Rotor3f.h"
 
 
-Cube::Cube(void) :Shape(), m_size(1), m_width(1), m_height(1), m_length(1), m_mass(1), m_friction(0.7f), m_restitution(0.8f)
+Cube::Cube(void) :Shape(), m_size(1), m_width(1), m_height(1), m_length(1), m_mass(1), m_friction(0.7f), m_restitution(0.8f), m_color(1,1,1)
 {
 	CalculatePoints();
 	DefineInvTensor();
@@ -141,16 +141,6 @@ void Cube::CalculatePoints()
 	m_points[6] = rotz->rotate(m_points[6]);
 	m_points[7] = rotz->rotate(m_points[7]);
 
-	/*m_points[0] = rotation.rotate(m_points[0]);
-	m_points[1] = rotation.rotate(m_points[1]);
-	m_points[2] = rotation.rotate(m_points[2]);
-	m_points[3] = rotation.rotate(m_points[3]);
-				 
-	m_points[4] = rotation.rotate(m_points[4]);
-	m_points[5] = rotation.rotate(m_points[5]);
-	m_points[6] = rotation.rotate(m_points[6]);
-	m_points[7] = rotation.rotate(m_points[7]);*/
-
 	m_points[0] = m_points[0] + GetPos();
 	m_points[1] = m_points[1] + GetPos();
 	m_points[2] = m_points[2] + GetPos();
@@ -168,7 +158,7 @@ void Cube::Render() const
 {
 	//Face 1, pointing towards +y
 	glBegin(GL_QUADS);
-	glColor3d(1, 1, 1);
+	glColor3d(m_color.x, m_color.y, m_color.z);
 		glVertex3d(m_points[0].x, m_points[0].y, m_points[0].z);
 		glVertex3d(m_points[1].x, m_points[1].y, m_points[1].z);
 		glVertex3d(m_points[2].x, m_points[2].y, m_points[2].z);
@@ -185,7 +175,7 @@ void Cube::Render() const
 
 	//Face 2, pointing towards -y
 	glBegin(GL_QUADS);
-	glColor3d(1, 1, 1);
+	glColor3d(m_color.x, m_color.y, m_color.z);
 		glVertex3d(m_points[4].x, m_points[4].y, m_points[4].z);
 		glVertex3d(m_points[7].x, m_points[7].y, m_points[7].z);
 		glVertex3d(m_points[6].x, m_points[6].y, m_points[6].z);
@@ -202,7 +192,7 @@ void Cube::Render() const
 
 	//Face 3, pointing towards +x
 	glBegin(GL_QUADS);
-	glColor3d(1, 1, 1);
+	glColor3d(m_color.x, m_color.y, m_color.z);
 		glVertex3d(m_points[1].x, m_points[1].y, m_points[1].z);
 		glVertex3d(m_points[5].x, m_points[5].y, m_points[5].z);
 		glVertex3d(m_points[6].x, m_points[6].y, m_points[6].z);
@@ -219,7 +209,7 @@ void Cube::Render() const
 
 	//Face 4, pointing towards -x
 	glBegin(GL_QUADS);
-	glColor3d(1, 11, 1);
+	glColor3d(m_color.x, m_color.y, m_color.z);
 		glVertex3d(m_points[0].x, m_points[0].y, m_points[0].z);
 		glVertex3d(m_points[4].x, m_points[4].y, m_points[4].z);
 		glVertex3d(m_points[7].x, m_points[7].y, m_points[7].z);
@@ -236,7 +226,7 @@ void Cube::Render() const
 
 	//Face 5, pointing towards +z
 	glBegin(GL_QUADS);
-	glColor3d(1, 1, 1);
+	glColor3d(m_color.x, m_color.y, m_color.z);
 		glVertex3d(m_points[0].x, m_points[0].y, m_points[0].z);
 		glVertex3d(m_points[4].x, m_points[4].y, m_points[4].z);
 		glVertex3d(m_points[5].x, m_points[5].y, m_points[5].z);
@@ -253,7 +243,7 @@ void Cube::Render() const
 
 	//Face 6, pointing towards -z
 	glBegin(GL_QUADS);
-	glColor3d(1, 1, 1);
+	glColor3d(m_color.x, m_color.y, m_color.z);
 		glVertex3d(m_points[3].x, m_points[3].y, m_points[3].z);
 		glVertex3d(m_points[2].x, m_points[2].y, m_points[2].z);
 		glVertex3d(m_points[6].x, m_points[6].y, m_points[6].z);

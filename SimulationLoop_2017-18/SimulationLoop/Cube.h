@@ -49,5 +49,7 @@ public:
 	Vector3 m_velocity;
 	Vector3 m_newVelocity;
 
+	Vector3 m_color;
+
 	TwBar* BarObj;
 };

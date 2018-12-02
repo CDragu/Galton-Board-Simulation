@@ -165,6 +165,28 @@ void Game::CreateBox(Vector3 origin, float height, float length, float width)
 	ListOfShapes.push_back(bottom);
 }
 
+void Game::CreateBox(Vector3 origin, Vector3 Color, float height, float length, float width)
+{
+	float relativeSize = 10;
+
+	Cube* bottom = new Cube();
+	bottom->SetPos(origin * relativeSize);
+	bottom->SetName("BoardBox");
+	bottom->SetSize(1);
+	bottom->SetHeight(height * relativeSize);
+	bottom->SetLength(length * relativeSize);
+	bottom->SetWidth(width * relativeSize);
+	bottom->SetRot(0, 0, 0);
+	bottom->GeometricType = 1;
+	bottom->m_mass = 20000;
+	bottom->CalculatePoints();
+	bottom->DefineInvTensor();
+	bottom->m_restitution = Elasticity + 1;
+	bottom->m_friction = Friction;
+	bottom->m_color = Color;
+	ListOfShapes.push_back(bottom);
+}
+
 void Game::CreateBox(Vector3 origin, float height, float length, float width, Vector3 Rotation)
 {
 	float relativeSize = 10;
@@ -236,13 +258,13 @@ void Game::ConstructBoard() {
 	}
 
 	//Create Bottom of box
-	CreateBox(origin, 22, 12, 0.1f);
+	CreateBox(origin, Vector3(0.11f, 0.11f, 0.11f), 22, 12, 0.1f);
 
 	//Create Right Side Of Box
-	CreateBox(origin + Vector3(6, 0, 2), 22, 1.12f, 4);
+	CreateBox(origin + Vector3(6, 0, 2), 22, 1.0f, 4);
 
 	//Create Left Side Of Box
-	CreateBox(origin + Vector3(-6, 0, 2), 22, 1.12f, 4);
+	CreateBox(origin + Vector3(-6, 0, 2), 22, 1.0f, 4);
 
 	//Create Down side of box
 	CreateBox(origin + Vector3(0, -13, 2), 4, 12, 4);

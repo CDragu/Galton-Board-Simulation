@@ -4,8 +4,6 @@
 #include <gl\GLU.h>
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include "Rotor3f.h"
-#include <iostream>
 #include <AntTweakBar.h>
 #define GRAVITY_CONST Vector3(0.0f, -80.91f, 0.0f)
 //#define GRAVITY_CONST Vector3(0.0f, 0, 0.0f)
@@ -577,7 +575,6 @@ void Sphere::CollisionResponseWithCylinder(Sphere& one, Cylinder& two, Vector3 c
 		Vector3 aux5 = aux4.Transform(aux4, tensor2);
 		Vector3 aux6 = aux5.Cross(twoPointOfContact);
 
-		Vector3 aux7 = aux3 + aux6;
 		float aux8 = SumMass + colNormal.Dot(aux3) + colNormal.Dot(aux6);
 
 		if (aux8 != 0)
